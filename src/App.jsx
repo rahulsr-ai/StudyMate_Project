@@ -12,10 +12,7 @@ import Study from "./Pages/Study";
 import { LandingHero } from "./components/Hero";
 import { Feature } from "./components/ui/Container";
 import { MdDashboard } from "react-icons/md";
-import { SiLinuxcontainers } from "react-icons/si";
 import { AboutUs } from "./Pages/About";
-import ExampleUsage from "./components/AiChat";
-import GptAi from "./components/GptAi";
 import supabase from "./utils/Supabase";
 
 const App = () => {
@@ -45,15 +42,27 @@ const App = () => {
   ];
 
   // Routes where navbar should *always* be hidden
-  const hideNavbarRoutes = ["/", "/login", "/sign-up", "/forget-password"];
+  const hideNavbarRoutes = [
+    "/",
+    "/login",
+    "/sign-up",
+    "/forget-password",
+    "/about",
+  ];
 
   // Get user on load
   useEffect(() => {
     const fetchUser = async () => {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user); // store user in state
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        console.log("user is logged in", session);
+        setUser(session); // store user in state
+      }
+
+      
     };
 
     fetchUser();
@@ -61,20 +70,15 @@ const App = () => {
 
   // Logic for showing the navbar
   const shouldShowNavbar =
-    (user && location.pathname === "/about") ||
-    (!hideNavbarRoutes.includes(location.pathname) && user);
+    !hideNavbarRoutes.includes(location.pathname) 
 
   return (
     <>
-      <header>
-        {shouldShowNavbar && <FloatingNav navItems={navItems} />}
-      </header>
+      <header>{shouldShowNavbar && <FloatingNav navItems={navItems} />}</header>
 
       <Routes>
         <Route index element={<LandingHero />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/ai" element={<ExampleUsage />} />
-        <Route path="/gpt" element={<GptAi />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/forget-password" element={<ForgotPassword />} />

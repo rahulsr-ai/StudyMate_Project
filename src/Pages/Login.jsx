@@ -4,26 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "../utils/AuthService";
 import supabase from "../utils/Supabase";
 import { IoMdArrowRoundBack } from "react-icons/io";
+import toast from "react-hot-toast";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  async function getUser() {
-    const { data, error } = await supabase.auth.getUser();
-    console.log(data.user.id);
-    
-    navigate("/dashboard");
-    if (data.user.id) {
-      console.error("Error fetching user:", error.message);
-    
-      return;
-    }
-
-  }
-
-  
 
   const handleGoogleLogin = async () => {
     const { user, error } = await signInWithGoogle();
@@ -34,33 +22,73 @@ function Login() {
     }
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    if(!email || !password) {
+      setError("Please fill all the fields");
+      return
+    }
+
+
+    setIsLoading(true);
+  
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
+  
     if (error) {
-      alert("Login failed: " + error.message);
+     
+      setError(error.message);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+     
     } else {
-      navigate("/dashboard"); // Redirect to dashboard
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
+      navigate("/dashboard"); 
     }
   };
 
+  useEffect(() => {
+    const checkUserSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-  useEffect(() => { 
-      getUser();
-  }, [])
+      if (session) {
+        // If user is already logged in, redirect to dashboard
+        navigate("/dashboard");
+      }
+    };
+
+    checkUserSession();
+  }, [navigate]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center p-4">
-      <div className="absolute top-4 left-4 text-white flex items-center gap-2 cursor-pointer
-      hover:scale-125 transition-all duration-300">
+      <div
+        className="absolute top-4 left-4 text-white flex items-center gap-2 cursor-pointer
+      hover:scale-125 transition-all duration-300"
+      >
         <Link to={"/"} className="text-xl bg-zinc-950 p-2 rounded-full">
           <IoMdArrowRoundBack />
         </Link>
       </div>
 
       <div className="w-full max-w-5xl bg-zinc-950 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+            <div className=" dark:bg-gray-800 rounded-lg p-6 shadow-lg flex items-center justify-center">
+              {/* Spinner */}
+              <div className="border-t-4 border-b-4 border-blue-900 h-12 w-12 rounded-full animate-spin"></div>
+            </div>
+          </div>
+        )}
+
         {/* Login Form Section */}
         <div className="w-full md:w-3/5 p-8 md:p-12">
           <div className="mb-8">
@@ -75,6 +103,7 @@ function Login() {
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 h-5 w-5" />
                 <input
+                  onFocus={() => setError(null)}
                   type="email"
                   placeholder="Email address"
                   value={email}
@@ -85,6 +114,7 @@ function Login() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 h-5 w-5" />
                 <input
+                  onFocus={() => setError(null)}
                   type="password"
                   placeholder="Password"
                   value={password}
@@ -92,6 +122,7 @@ function Login() {
                   className="w-full bg-zinc-700/50 border border-zinc-600 text-white rounded-lg py-3 px-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
+              <span className="text-red-500 text-sm">{error}</span>
             </div>
 
             <div className="flex items-center justify-between">

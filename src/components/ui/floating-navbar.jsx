@@ -2,19 +2,27 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import supabase from "@/utils/Supabase";
 
 export const FloatingNav = ({ navItems, className }) => {
   const [visible, setVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [user, setUser] = useState(null);
 
-  
+  const navigate = useNavigate();
 
   const logOut = async () => {
     localStorage.removeItem("sb-jtxvaqctajkhgkjekams-auth-token");
-    await supabase.auth.signOut();
+    
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      navigate('/login'); // redirect after logout
+    } else {
+      alert('Error logging out: ' + error.message);
+    }
   };
+
 
   const getUser = async () => {
     const { data, error } = await supabase.auth.getUser();
@@ -84,7 +92,7 @@ export const FloatingNav = ({ navItems, className }) => {
             </Link>
           ))}
 
-          {user ? (
+          {user === null ? (
             <Link
               to={"/login"}
               className="border text-sm font-medium relative border-neutral-200 
@@ -100,7 +108,7 @@ export const FloatingNav = ({ navItems, className }) => {
           ) : (
             <Link
               onClick={() => logOut()}
-              to={"/"}
+              to={"/login"}
               className="border text-sm font-medium relative border-neutral-200 
      dark:border-white/[0.2] text-white dark:text-white px-4 py-2 rounded-md
      hover:scale-95 transition-all duration-300"

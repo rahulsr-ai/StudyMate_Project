@@ -142,7 +142,7 @@ function LandingHero() {
           initial={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: "easeOut", delay: 0.3 }}
         >
-          <span>Make your </span>
+          <span className="">Study</span>
           <LayoutGroup>
             <motion.span layout className="flex whitespace-pre">
               <motion.span
@@ -150,23 +150,18 @@ function LandingHero() {
                 className="flex whitespace-pre"
                 transition={{ type: "spring", damping: 30, stiffness: 400 }}
               >
-                website{" "}
+                {" "}
               </motion.span>
               <TextRotate
                 texts={[
-                  "fancy",
-                  "fun",
-                  "lovely ♥",
-                  "weird",
-                  "🪩 funky",
-                  "💃🕺",
-                  "sexy",
-                  "🕶️ cool",
-                  "go 🚀",
-                  "🔥🔥🔥",
-                  "over-animated?",
-                  "pop ✨",
-                  "rock 🤘",
+                  "smarter 📚",
+                  "focused 🔍",
+                  "organized 🗂️",
+                  "efficient ⚡",
+                  "on track 🚀",
+                  "note-ready 📝",
+                  "clear-minded 💡",
+                  "with ease ✨",
                 ]}
                 mainClassName="overflow-hidden pr-3 text-[#0015ff] py-0 pb-2 md:pb-4 rounded-xl"
                 staggerDuration={0.03}
@@ -184,8 +179,12 @@ function LandingHero() {
           initial={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: "easeOut", delay: 0.5 }}
         >
-         Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae fuga omnis cumque in eos, iste error nam illo suscipit possimus?
+          Organize your study world, your way.
         </motion.p>
+
+        <span className="text-[#0015ff] font-medium mt-2 text-xl">
+          Your smart space to learn, track & grow.
+        </span>
 
         <div className="flex flex-row justify-center space-x-4 items-center mt-10 sm:mt-16 md:mt-20 lg:mt-20 text-xs">
           <motion.button
@@ -208,27 +207,24 @@ function LandingHero() {
             </Link>
           </motion.button>
           <Link to="/about">
-          <motion.button
-            className="sm:text-base md:text-lg lg:text-xl font-semibold tracking-tight text-white bg-[#0015ff] px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-3 rounded-full z-20 shadow-2xl font-calendas"
-            animate={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            transition={{
-              duration: 0.2,
-              ease: "easeOut",
-              delay: 0.7,
-              scale: { duration: 0.2 },
-            }}
-            whileHover={{
-              scale: 1.05,
-              transition: { type: "spring", damping: 30, stiffness: 400 },
-            }}
-          >
-            {/* <Link href="https://github.com/danielpetho/fancy">★ on GitHub</Link> */}
-          
-          About Us
-      
-           
-          </motion.button>
+            <motion.button
+              className="sm:text-base md:text-lg lg:text-xl font-semibold tracking-tight text-white bg-[#0015ff] px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-3 rounded-full z-20 shadow-2xl font-calendas"
+              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              transition={{
+                duration: 0.2,
+                ease: "easeOut",
+                delay: 0.7,
+                scale: { duration: 0.2 },
+              }}
+              whileHover={{
+                scale: 1.05,
+                transition: { type: "spring", damping: 30, stiffness: 400 },
+              }}
+            >
+              {/* <Link href="https://github.com/danielpetho/fancy">★ on GitHub</Link> */}
+              About Us
+            </motion.button>
           </Link>
         </div>
       </div>
