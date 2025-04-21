@@ -8,7 +8,7 @@ import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageSquare, X, Send, Copy } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
-export function ChatDialog({ open, setOpen, prompt, setPrompt, videoSummary }) {
+export function ChatDialog({ open, setOpen, prompt, setPrompt, getSummary }) {
   const notify = () => toast.success("Copied to clipboard");
 
   const [messages, setMessages] = useState([]);
@@ -22,7 +22,11 @@ export function ChatDialog({ open, setOpen, prompt, setPrompt, videoSummary }) {
     setPrompt("");
     setIsLoading(true);
 
-    const res = await videoSummary();
+  
+      const res = await getSummary();
+    
+
+
     console.log("response from getAIResponse ", res);
     setMessages((prev) => [
       ...prev,

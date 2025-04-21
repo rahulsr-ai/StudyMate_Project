@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import YouTube from "react-youtube";
 import supabase from "@/utils/Supabase";
 import { ChatDialog } from "./GptAi";
-import { getPrompt, getTranscript } from "@/utils/ApiCalls";
+import { getPrompt, getTranscript, returnPdfText } from "@/utils/ApiCalls";
+import axios from "axios";
 
 const StudyDrawer = ({
   mediaType,
@@ -87,44 +88,48 @@ const StudyDrawer = ({
     }
   };
 
-  console.log("mediaSrc ", mediaSrc);
-  console.log("mediaSrc ", youtubeId);
+  console.log("mediaSrc ", mediaSrc); // geting the url
+  console.log("mediaSrc ", youtubeId); // getting the id
 
-  const videoSummary = async () => {
-    const transcript = await getTranscript(youtubeId);
-    setSummary(transcript.plainText);
-
+  const getSummary = async () => {
+    console.log("getSummary called");
     
-    // if(open) { 
-    //   const res = await getPrompt(
-    //     prompt,
-    //     transcript.plainText
-    //   );
-    // }
-
-      const res = await getAIResponse()
-      return res
-
-
+    const {data} = await axios.get('/api/groq/chat');
+   
+    console.log('response from groq ', data?.reply);
     
+   
+    if (mediaType === "pdf") {
+      const transcript = await returnPdfText(mediaSrc);
+      return;
+    } else {
+      const transcript = await getTranscript(youtubeId);
+      setSummary(transcript.plainText);
+      const res = await getAIResponse();
+      return res;
+    }
+
+
+
   };
 
   useEffect(() => {
-    videoSummary();
+    getSummary();
   }, []);
 
   const getAIResponse = async () => {
-  
-    const res = await getPrompt(
-      prompt,
-      summary
-    );
-
-   
-    return res.data
-
-   
+    const res = await getPrompt(prompt, summary);
+    return res.data;
   };
+
+
+
+
+    
+
+
+    
+
 
   return (
     <>
@@ -218,7 +223,9 @@ const StudyDrawer = ({
               <div className="flex justify-end mt-3">
                 <Button
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white shadow-md"
-                  onClick={() => setAiOpen(true)}
+                  onClick={() => {
+                    setAiOpen(true);
+                  }}
                 >
                   🤖 Ask AI
                 </Button>
@@ -236,7 +243,9 @@ const StudyDrawer = ({
               <div className="flex justify-end mt-4">
                 <Button
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white shadow-md"
-                  onClick={() => setAiOpen(true)}
+                  onClick={() => {
+                    setAiOpen(true);
+                  }}
                 >
                   🤖 Ask AI
                 </Button>
@@ -249,12 +258,13 @@ const StudyDrawer = ({
       </Drawer>
 
       {/* === AI Chat Dialog === */}
-      <ChatDialog 
-      open={Aiopen} 
-      setOpen={setAiOpen} 
-      setPrompt={setPrompt} 
-      prompt={prompt}
-      videoSummary={videoSummary}/>
+      <ChatDialog
+        open={Aiopen}
+        setOpen={setAiOpen}
+        setPrompt={setPrompt}
+        prompt={prompt}
+        getSummary={getSummary}
+      />
     </>
   );
 };

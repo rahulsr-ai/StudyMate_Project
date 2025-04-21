@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import supabase from "@/utils/Supabase";
 
-export const FloatingNav = ({ navItems, className }) => {
+export const FloatingNav = ({ navItems, user }) => {
   const [visible, setVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
 
@@ -24,21 +24,9 @@ export const FloatingNav = ({ navItems, className }) => {
   };
 
 
-  const getUser = async () => {
-    const { data, error } = await supabase.auth.getUser();
-
-    if (error) {
-      console.log(error);
-      return;
-    }
-    setUser(data.user);
-  };
-
-
-
+  
   useEffect(() => {
-    
-    getUser();
+
 
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 768); // Mobile if width < 768px
@@ -77,7 +65,7 @@ export const FloatingNav = ({ navItems, className }) => {
               : "top-2 inset-x-0 mx-auto max-w-fit rounded-full p-2 border border-neutral-300 dark:border-white/[0.2]"
           } 
             dark:bg-black bg-black shadow-lg z-[5000] 
-            flex items-center justify-center space-x-4 ${className} px-4`}
+            flex items-center justify-center space-x-4  px-4`}
         >
           {navItems.map((navItem, idx) => (
             <Link
