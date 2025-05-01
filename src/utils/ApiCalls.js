@@ -161,9 +161,16 @@ export const savePdfData = async (userId, formdata) => {
 
 
 export const getTranscript = async (videoId ) => {
+  try { 
       const {data} =  await axios.get(`/api/getSummary?videoid=${videoId}`)
-      console.log('response ', data);
-      return data;
+  console.log('transcript ', data);
+  return data;
+    
+  } catch (error) {
+     return false 
+     
+  }
+    
 }
 
 
@@ -223,6 +230,10 @@ export const returnPdfText = async (pdfUrl) => {
 };
 
 
+
+export const GetCurrentStudyData = async (id) => { 
+  const {data} = await axios.get(`/api/getStudyData/${id}`)
+}
 
 
 

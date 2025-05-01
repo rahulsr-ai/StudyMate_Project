@@ -80,3 +80,58 @@ export const AiResponse =   async (req, res) => {
   }
 }
 
+
+
+export const groqAIResponse = async (req, res) => {
+  const { prompt, transcript } = req.body;
+
+  console.log('this is the transcript ', transcript);
+  console.log('this is the prompt ', prompt);
+
+  if (!prompt|| !transcript) {
+    return res.status(400).json({ error: "Prompt or Transcript is missing" });
+  }
+  
+
+  try {
+    const response = await axios.post(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        messages: [
+          {
+            role: "system",
+            content: `You are a helpful assistant. First, always respond directly to the user's message.
+    If the user later asks questions related to a video, you may refer to the transcript provided earlier.`
+          },
+          {
+            role: "user",
+            content: `This is the transcript of the video for reference: \n\n${transcript}`
+          },
+          {
+            role: "assistant",
+            content: "Thanks for the transcript! Let me know if you have any questions about it."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.7
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+    
+
+    const reply = response.data.choices[0].message.content;
+    return res.status(200).json({ prompt: prompt, reply: reply });
+  } catch (error) {
+    console.error("Groq API Error:", error.response?.data || error.message);
+   return res.status(500).json({ error: "Groq API failed" });
+  }
+}

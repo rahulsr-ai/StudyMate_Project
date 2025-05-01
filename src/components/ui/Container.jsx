@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import StudyDrawer from "../StudyDrawer";
 import supabase from "@/utils/Supabase";
@@ -22,6 +22,8 @@ function Feature() {
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
+
+  const navigate = useNavigate()
 
   const location = useLocation();
   const { container, container_id } = location.state || {};
@@ -51,6 +53,8 @@ function Feature() {
   useEffect(() => {
     fetchData();
   }, [openItemId]);
+
+
 
   const editNotes = async (id, notes, url) => {
     if (!(container_id && id && notes && url)) {
@@ -166,7 +170,9 @@ function Feature() {
 
                   <button
                     className="w-full border-blue-500 border-2 bg-transparent text-white p-2 rounded-md"
-                    onClick={() => setOpenItemId(item.id)}
+                    onClick={() => {setOpenItemId(item.id) 
+                      navigate(`/acha/${container_id}/${item.id}/${item.v_title ? "video" : "pdf"}`)
+                    }}
                   >
                     Open Media
                   </button>
@@ -245,7 +251,7 @@ function Feature() {
                     </AlertDialog>
                   </div>
 
-                  <p className="text-sm text-gray-200 mb-4">
+                  <p className="text-sm text-gray-200 mb-4 line-clamp-3">
                     {item.notes || item.description}
                   </p>
                 </div>

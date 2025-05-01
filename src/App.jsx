@@ -8,13 +8,14 @@ import ForgotPassword from "./Pages/ForgotPassword";
 import UpdatePassword from "./Pages/UpdatePassword";
 import { FloatingNav } from "./components/ui/floating-navbar";
 import { BookOpen } from "lucide-react";
-import Study from "./Pages/Study";
+import StudyContainers from "./Pages/StudyContainers";
 import { LandingHero } from "./components/Hero";
 import { Feature } from "./components/ui/Container";
 import { MdDashboard } from "react-icons/md";
 import { AboutUs } from "./Pages/About";
 import supabase from "./utils/Supabase";
 import NotFound from "./Pages/NotFound";
+import LearningModal from "./Pages/Test";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -67,6 +68,8 @@ const App = () => {
     fetchUser();
   }, [navigate]);
 
+
+
   // Check if current path matches any route where navbar should be hidden
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
 
@@ -81,8 +84,10 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/about" element={<AboutUs user={user} />} />
         <Route path="/sign-up" element={<SignUp />} />
+   
+        
         <Route
-          path="/forget-password"
+          path="/forget-password" 
           element={<ForgotPassword user={user} />}
         />
         <Route
@@ -93,8 +98,9 @@ const App = () => {
 
         <Route path="/" element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/study" element={<Study />} />
+          <Route path="/study" element={<StudyContainers />} />
           <Route path="/study/container" element={<Feature />} />
+          <Route path="/acha/:containerId/:id/:type" element={<LearningModal />} />
         </Route>
       </Routes>
     </main>

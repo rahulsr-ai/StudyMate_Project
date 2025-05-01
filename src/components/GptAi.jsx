@@ -18,6 +18,7 @@ export function ChatDialog({ open, setOpen, prompt, setPrompt, getSummary }) {
     if (!prompt.trim()) return;
 
     const newMessage = { role: "user", content: prompt };
+    
     setMessages((prev) => [...prev, newMessage]);
     setPrompt("");
     setIsLoading(true);
@@ -30,7 +31,7 @@ export function ChatDialog({ open, setOpen, prompt, setPrompt, getSummary }) {
     console.log("response from getAIResponse ", res);
     setMessages((prev) => [
       ...prev,
-      { role: "assistant", content: res?.response },
+      { role: "assistant", content: res },
     ]);
     setIsLoading(false);
   };

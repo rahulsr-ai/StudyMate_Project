@@ -69,7 +69,7 @@ function Login() {
     checkUserSession();
   }, [navigate]);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center md:p-4">
       <div
         className="absolute top-4 left-4 text-white flex items-center gap-2 cursor-pointer
       hover:scale-125 transition-all duration-300"
@@ -82,7 +82,7 @@ function Login() {
       <div className="w-full max-w-5xl bg-zinc-950 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
         {isLoading && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-            <div className=" dark:bg-gray-800 rounded-lg p-6 shadow-lg flex items-center justify-center">
+            <div className=" dark:bg-gray-800 md:rounded-lg p-6 shadow-lg flex items-center justify-center">
               {/* Spinner */}
               <div className="border-t-4 border-b-4 border-blue-900 h-12 w-12 rounded-full animate-spin"></div>
             </div>

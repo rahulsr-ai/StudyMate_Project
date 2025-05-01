@@ -33,7 +33,7 @@ const StudyDrawer = ({
   const [text, setText] = useState(description);
   const [isEditing, setIsEditing] = useState(false);
 
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(" ");
 
   const onPlayerReady = (event) => {
     playerRef.current = event.target;
@@ -63,6 +63,7 @@ const StudyDrawer = ({
       .padStart(2, "0")}`;
   };
 
+  
   const handleDrawerClose = async () => {
     try {
       if (mediaType === "video" && playerRef.current) {
@@ -88,44 +89,39 @@ const StudyDrawer = ({
     }
   };
 
+
+
+
   console.log("mediaSrc ", mediaSrc); // geting the url
   console.log("mediaSrc ", youtubeId); // getting the id
 
   const getSummary = async () => {
     console.log("getSummary called");
     
-    const {data} = await axios.get('/api/groq/chat');
-   
-    console.log('response from groq ', data?.reply);
-    
-   
-    if (mediaType === "pdf") {
-      const transcript = await returnPdfText(mediaSrc);
-      return;
+  
+    if (mediaType === "pdf" ) {
+
+      const {data} = await axios.post('/api/groq/chat', {prompt: prompt , transcript: "You are a helpful assistant that answers based on the user prompt."});
+      console.log('response from groq from pdf ', data?.reply);
+      return data?.reply
+
+  
     } else {
+
       const transcript = await getTranscript(youtubeId);
       setSummary(transcript.plainText);
-      const res = await getAIResponse();
-      return res;
+      const {data} = await axios.post('/api/groq/chat', {prompt: prompt, transcript: transcript.plainText});
+      console.log('response from groq for video ', data?.reply);
+      return data?.reply
     }
 
-
-
-  };
-
-  useEffect(() => {
-    getSummary();
-  }, []);
-
-  const getAIResponse = async () => {
-    const res = await getPrompt(prompt, summary);
-    return res.data;
   };
 
 
 
+  
 
-    
+
 
 
     
@@ -147,14 +143,16 @@ const StudyDrawer = ({
             {title}
           </DialogTitle>
 
+         
+
+          <div className="flex gap-2 justify-end my-1">
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             disabled={!isEditing}
             className="h-[80px] md:h-44 text-xs focus:border-blue-500 focus:ring-blue-500 w-full text-white overflow-auto mt-4"
           />
-
-          <div className="flex gap-2 justify-end my-1">
+          
             <Button
               onClick={() => setIsEditing(true)}
               disabled={isEditing}
