@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // Your backend URL
+        target: "https://studymaten.onrender.com/", // Your backend URL
         changeOrigin: true,
         secure: false, // Set to true if using HTTPS
       },
