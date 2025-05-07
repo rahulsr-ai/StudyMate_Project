@@ -62,7 +62,7 @@ export const FloatingNav = ({ navItems, user }) => {
           className={`fixed ${
             isMobile
               ? "bottom-0 left-1/2 -translate-x-1/2  py-1 w-full"
-              : "top-2 inset-x-0 mx-auto max-w-fit rounded-full p-2 border border-neutral-300 dark:border-white/[0.2]"
+              : "top-0 inset-x-0 mx-auto max-w-fit rounded-full p-2 border border-neutral-300 dark:border-white/[0.2]"
           } 
             dark:bg-black bg-black shadow-lg z-[5000] 
             flex items-center justify-center space-x-4  px-4`}

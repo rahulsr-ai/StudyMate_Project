@@ -5,7 +5,6 @@ import { Textarea } from "./ui/textarea";
 import { useEffect, useRef, useState } from "react";
 import YouTube from "react-youtube";
 import supabase from "@/utils/Supabase";
-import { ChatDialog } from "./GptAi";
 import { getPrompt, getTranscript, returnPdfText } from "@/utils/ApiCalls";
 import axios from "axios";
 

@@ -78,7 +78,7 @@ function SignUp() {
                   placeholder="Full name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-zinc-700/50 border border-zinc-600 text-white rounded-lg py-3 px-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-zinc-700/50 border border-zinc-600 text-white rounded-lg py-3 px-12 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
                 />
               </div>
               <div className="relative">
@@ -88,7 +88,7 @@ function SignUp() {
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-zinc-700/50 border border-zinc-600 text-white rounded-lg py-3 px-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-zinc-700/50 border border-zinc-600 text-white rounded-lg py-3 px-12 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
                 />
               </div>
               <div className="relative">
@@ -98,7 +98,7 @@ function SignUp() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-zinc-700/50 border border-zinc-600 text-white rounded-lg py-3 px-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-zinc-700/50 border border-zinc-600 text-white rounded-lg py-3 px-12 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
                 />
               </div>
             </div>
@@ -106,7 +106,7 @@ function SignUp() {
             <div className="space-y-4">
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg py-3 font-medium flex items-center justify-center space-x-2 hover:from-blue-600 hover:to-blue-700 transition-colors"
+                className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)]  text-white rounded-lg py-3 font-medium flex items-center justify-center space-x-2  transition-colors"
               >
                 <span>Create Account</span>
                 <ArrowRight className="h-5 w-5" />
@@ -116,14 +116,14 @@ function SignUp() {
 
           <p className="mt-8 text-center text-zinc-400">
             Already have an account?{" "}
-            <Link to="/login" className="text-blue-500 hover:text-blue-400">
+            <Link to="/login" className="text-[var(--primary-color)] hover:text-[var(--primary-color)]">
               Sign in here
             </Link>
           </p>
         </div>
 
         {/* Quote Section */}
-        <div className="w-full md:w-2/5 bg-gradient-to-r from-blue-500 to-blue-700 p-6 md:p-12 flex items-center">
+        <div className="w-full md:w-2/5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)]  p-6 md:p-12 flex items-center">
           <div>
             <blockquote className="text-2xl font-light text-white italic mb-6">
               "The journey of a thousand miles begins with a single step."

@@ -11,7 +11,7 @@ const PrivateRoute = () => {
  
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = async () => { 
       const { data, error } = await supabase.auth.getUser();
       if (data?.user) {
         setOk(true);
@@ -26,6 +26,7 @@ const PrivateRoute = () => {
 
     
   }, []);
+
 
 
   useEffect(() => {
@@ -44,4 +45,8 @@ const PrivateRoute = () => {
   return ok ? <Outlet /> : <ReDirecting path="login" />;
 };
 
+
+
 export default PrivateRoute;
+
+

@@ -15,7 +15,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
-function Feature() {
+function Sets() {
   const [mergedArray, setMergedArray] = useState([]);
   const [openItemId, setOpenItemId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -129,7 +129,7 @@ function Feature() {
         <div className="flex flex-col gap-10">
           <div className="flex gap-4 flex-col items-start">
             <div className="flex gap-2 flex-col">
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-bold mb-6 bg-[var(--primary-color)] bg-clip-text text-transparent">
                 {container?.name || "Container"}
               </h2>
               <p className="text-lg max-w-xl lg:max-w-lg leading-relaxed tracking-tight text-left text-gray-400">
@@ -139,7 +139,15 @@ function Feature() {
           </div>
 
           {loading ? (
-            <p className="text-white">Loading content...</p>
+            
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                <div className=" dark:bg-gray-800 md:rounded-lg p-6 shadow-lg flex items-center justify-center">
+                  {/* Spinner */}
+                  <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
+                </div>
+              </div>
+          
+    
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
               {mergedArray.map((item, index) => (
@@ -169,9 +177,9 @@ function Feature() {
                   </div>
 
                   <button
-                    className="w-full border-blue-500 border-2 bg-transparent text-white p-2 rounded-md"
+                    className="w-full border-[var(--primary-color)] border-2 bg-transparent text-white p-2 rounded-md"
                     onClick={() => {setOpenItemId(item.id) 
-                      navigate(`/acha/${container_id}/${item.id}/${item.v_title ? "video" : "pdf"}`)
+                      navigate(`/topic/${container_id}/${item.id}/${item.v_title ? "video" : "pdf"}`)
                     }}
                   >
                     Open Media
@@ -200,7 +208,7 @@ function Feature() {
                   )}
 
                   <div className="flex justify-between items-center">
-                    <h3 className="tracking-tight text-blue-600 text-lg">
+                    <h3 className="tracking-tight text-[var(--primary-color)] text-lg">
                       {item.v_title || item.title}
                     </h3>
 
@@ -264,4 +272,4 @@ function Feature() {
   );
 }
 
-export { Feature };
+export { Sets };

@@ -73,7 +73,7 @@ const VideoGrid = ({ title, container, items , showDeleteDialog , setShowDeleteD
 
   const sendToContainer = () => {
 
-    navigate("/study/container", {
+    navigate("/study/sets", {
       state: { container: container, container_id: container.id },
     });
   };
@@ -104,7 +104,7 @@ const VideoGrid = ({ title, container, items , showDeleteDialog , setShowDeleteD
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="bg-zinc-900/80 backdrop-blur-sm rounded-2xl p-6 border border-zinc-800/50 shadow-lg hover:shadow-blue-500/10 cursor-pointer group h-fit"
+      className="bg-zinc-900/80 backdrop-blur-sm rounded-2xl p-6 border border-zinc-800/50 shadow-lg hover:shadow-[var(--primary-color)]/10 cursor-pointer group h-fit"
         
     >
       <motion.div
@@ -112,19 +112,19 @@ const VideoGrid = ({ title, container, items , showDeleteDialog , setShowDeleteD
         whileHover={{ x: 5 }}
       >
         <span className="p-2 bg-zinc-800 rounded-lg">
-          <Folder className="w-6 h-6 text-blue-500" />
+          <Folder className="w-6 h-6 text-[var(--primary-color)]" />
         </span>
         <div 
         onClick={() => sendToContainer()} // Ensure this is the only onClick handler for navigation
         className="flex-1">
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
+          <h3 className="text-2xl font-bold bg-[var(--primary-color)] bg-clip-text text-transparent">
             {title}
           </h3>
           <p className="text-sm text-zinc-400">
             {items.length} {items.length === 1 ? "item" : "items"} available
           </p>
         </div>
-        <ChevronRight className="w-5 h-5 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <ChevronRight className="w-5 h-5 text-[var(--primary-color)] opacity-0 group-hover:opacity-100 transition-opacity" />
            <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Trash2
@@ -309,7 +309,7 @@ const StudyContainers = () => {
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold mb-8 bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent flex items-center gap-4"
+          className="text-4xl font-bold mb-8 bg-[var(--primary-color)] bg-clip-text text-transparent flex items-center gap-4"
         >
           Study Materials
         </motion.h2>

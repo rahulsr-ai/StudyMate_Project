@@ -109,22 +109,7 @@ const AboutUs = ({
                     <p className="mt-4 text-muted-foreground md:mt-5">
                       {post.summary}
                     </p>
-                    {/* <div className="mt-6 flex items-center space-x-4 text-sm md:mt-8">
-                    <span className="text-muted-foreground">{post.author}</span>
-                    <span className="text-muted-foreground">•</span>
-                    <span className="text-muted-foreground">{post.published}</span>
-                  </div> */}
-                    {/* <div className="mt-6 flex items-center space-x-2 md:mt-8">
-                    <a
-                      href={post.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center font-semibold hover:underline md:text-base"
-                    >
-                      <span>Read more</span>
-                      <ArrowRight className="ml-2 size-4 transition-transform" />
-                    </a>
-                  </div> */}
+                   
                   </div>
 
                   <div className="order-first sm:order-last sm:col-span-5">

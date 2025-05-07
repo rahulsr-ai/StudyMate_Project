@@ -1,25 +1,25 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BsSend } from "react-icons/bs";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import YouTube from "react-youtube";
 import supabase from "@/utils/Supabase";
 import { getTranscript } from "@/utils/ApiCalls";
 import { Copy } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { IoMdArrowRoundBack } from "react-icons/io";
+import ReactPlayer from "react-player";
 
-const Modal = () => {
+const StudyPage = () => {
   const { id, containerId, type } = useParams();
 
   console.log(id, containerId, type);
 
   const notify = () => toast.success("Copied to clipboard");
 
-  const location = useLocation();
-
   const [prompt, setprompt] = useState(" ");
+  const [videoload, setvideoload] = useState(false);
   const [currentStudy, setCurrentStudy] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -35,6 +35,8 @@ const Modal = () => {
     try {
       const { data } = await axios.get(`/api/container/${id}/${type}`);
       if (data && data.length > 0) {
+        console.log(data);
+
         setMessage(data[0]?.notes);
         setCurrentStudy(data[0]);
         setCurrentTime(data[0]?.watchtime_progress || 0);
@@ -44,6 +46,10 @@ const Modal = () => {
     } catch (error) {
       console.error("Error fetching study data:", error);
     }
+
+    setTimeout(() => {
+      setvideoload(true);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -66,8 +72,6 @@ const Modal = () => {
     }
   }, [currentStudy?.v_title]);
 
-
-
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
@@ -77,7 +81,6 @@ const Modal = () => {
       alert("Please provide all the required parameters");
       return;
     }
-
 
     let updatedItem = null;
 
@@ -117,17 +120,29 @@ const Modal = () => {
     if (prompt.trim() === "") return;
 
     const userMessage = { role: "user", text: prompt };
-    setChatMessages((prevMessages) => [...prevMessages, userMessage]);
+    const updatedMessages = [...chatMessages, userMessage];
+
+    setChatMessages(updatedMessages);
+    // localStorage.setItem("chatHistory", JSON.stringify(updatedMessages));
     setprompt("");
 
     const GroqResponse = await getSummary();
 
     setTimeout(() => {
       const aiResponse = { role: "ai", text: GroqResponse };
-      setChatMessages((prevMessages) => [...prevMessages, aiResponse]);
+      const newChat = [...updatedMessages, aiResponse];
+
+      setChatMessages(newChat);
+      localStorage.setItem("chatHistory", JSON.stringify(newChat));
     }, 100);
-  
   };
+
+  // useEffect(() => {
+  //   const storedChat = localStorage.getItem("chatHistory");
+  //   if (storedChat) {
+  //     setChatMessages(JSON.parse(storedChat));
+  //   }
+  // }, []);
 
   const formatTime = (seconds) => {
     const min = Math.floor(seconds / 60);
@@ -145,7 +160,7 @@ const Modal = () => {
   };
 
   const getSummary = async () => {
-    console.log("getSummary called");
+   
 
     if (!currentStudy?.v_code) {
       const { data } = await axios.post("/api/groq/chat", {
@@ -158,9 +173,10 @@ const Modal = () => {
     } else {
       const transcript = await getTranscript(currentStudy?.v_code);
 
+      let text = transcript.plainText
+        ? transcript.plainText
+        : "No transcript found answer your questions without it and if user asked anything about the video, answer something sorry i dont have any idea which video u watching";
 
-       let text = transcript.plainText ? transcript.plainText : "No transcript found answer your questions without it and if user asked anything about the video, answer something sorry i dont have any idea which video u watching"
-      
       const { data } = await axios.post("/api/groq/chat", {
         prompt: prompt,
         transcript: text,
@@ -179,36 +195,28 @@ const Modal = () => {
       exit={{ opacity: 0 }}
       className="flex min-h-screen bg-black bg-opacity-80 "
     >
-
-      
-
       <motion.div
         initial={{ scale: 0.9 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0.9 }}
         className="w-full  bg-zinc-800 text-white shadow-lg flex flex-col md:flex-row"
       >
-
-        
         {/* Left Section */}
         <div className="w-full md:w-2/3 px-4 py-3 border-r md:border-r-0 border-zinc-700 ">
-
-        <div
-              className=" text-white flex items-center gap-2 cursor-pointer
+          <div
+            className=" text-white flex items-center gap-2 cursor-pointer
             "
-            >
-              <button  
-              onClick={() => { 
+          >
+            <button
+              onClick={() => {
                 window.history.back();
               }}
-              className="text-xl bg-zinc-950 p-2 rounded-full">
-                <IoMdArrowRoundBack />
-              </button>
-            </div>
+              className="text-xl bg-zinc-950 p-2 rounded-full"
+            >
+              <IoMdArrowRoundBack />
+            </button>
+          </div>
 
-
-
-     
           <h2 className="text-2xl font-semibold mb-4">
             {currentStudy?.v_title || currentStudy?.title || "Loading..."}
           </h2>
@@ -232,7 +240,9 @@ const Modal = () => {
                 </p>
               </div>
 
-              <YouTube
+              {videoload ? (
+                <>
+                  <YouTube
                 className="rounded-lg"
                 videoId={currentStudy?.v_code}
                 onReady={onPlayerReady}
@@ -242,34 +252,59 @@ const Modal = () => {
                   playerVars: { autoplay: 0 },
                 }}
               />
+                </>
+              ) : (
+                <div className=" dark:bg-gray-800 md:rounded-lg h-[350px] p-6 shadow-lg flex items-center justify-center">
+                  <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
+                </div>
+              )}
             </>
           ) : (
-            <iframe
-              src={currentStudy?.url}
-              width="100%"
-              height="370px"
-              className="rounded-lg border-4"
-              title="Study Material"
-            ></iframe>
+            <>
+              {videoload ? (
+                <iframe
+                  src={currentStudy?.url}
+                  width="100%"
+                  height="370"
+                  className="rounded-lg border"
+                  title="Study Material"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <div className="dark:bg-gray-800 md:rounded-lg h-[370px] p-6 shadow-lg flex items-center justify-center">
+                  <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
+                </div>
+              )}
+            </>
           )}
 
           {/* Notes Section */}
           <div className="flex  flex-col space-y-4 mt-4">
             <textarea
               className="w-full text-sm p-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:border-blue-500"
-              rows="3"
+              rows="6"
               placeholder="Enter your notes..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             ></textarea>
-            <button
-              onClick={() =>
-                editNotes(id, message, currentStudy?.v_url || currentStudy?.url)
-              }
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-            >
-              Save
-            </button>
+
+            <div className="flex justify-end gap-7">
+              <button
+                onClick={() =>
+                  editNotes(
+                    id,
+                    message,
+                    currentStudy?.v_url || currentStudy?.url
+                  )
+                }
+                className="px-4 py-2 w-1/1 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition"
+              >
+                Save
+              </button>
+              <button className="px-4 py-2 w-1/4 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition">
+                Export Notes
+              </button>
+            </div>
           </div>
         </div>
 
@@ -288,7 +323,7 @@ const Modal = () => {
                 className={`p-3 rounded-md mb-2 ${
                   msg.role === "ai"
                     ? "bg-zinc-700 text-gray-300"
-                    : "bg-blue-500 text-white"
+                    : "bg-[var(--primary-color)] text-white"
                 }`}
               >
                 <div
@@ -308,7 +343,7 @@ const Modal = () => {
           </div>
 
           {/* Chat Input */}
-          <div className="p-4 border-t border-zinc-700 bg-zinc-900 flex items-center">
+          <div className="p-4 border-t border-zinc-700 bg-zinc-900 flex items-center mb-8 md:mb-2">
             <input
               type="text"
               className="w-full p-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:border-blue-500"
@@ -318,16 +353,15 @@ const Modal = () => {
             />
             <button
               onClick={handleSendMessage}
-              className="ml-2 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+              className="ml-2 p-2 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition"
             >
               <BsSend className="w-4 h-4" />
             </button>
           </div>
         </div>
-        
       </motion.div>
     </motion.div>
   );
 };
 
-export default Modal;
+export default StudyPage;

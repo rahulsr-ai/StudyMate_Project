@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import Sidebar from "../components/Sidebar";
 import { Button } from "@/components/ui/button";
-import { DialogCloseButton } from "@/components/fetchVideoDetails";
+import { UTubeVideoModel } from "@/components/fetchVideoDetails";
 import { UploadPdfDialog } from "@/components/fetchPdfDetails";
 import supabase from "@/utils/Supabase";
 import { getUserContainersData } from "@/utils/ApiCalls";
+import {CustomDialogModel}  from "../components/CustomVideoDetails";
 
 function Dashboard() {
   const [openVideoDialog, setOpenVideoDialog] = useState(false);
+  const [openCustomVideoDialog, setOpenCustomVideoDialog] = useState(false);
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [containers, setContainers] = useState([]);
@@ -42,9 +43,8 @@ function Dashboard() {
       >
         {/* Featured Section */}
         <div className="mb-12">
-          <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-bold mb-6 bg-[var(--primary-color)] bg-clip-text text-transparent">
             Structure Your Study
-            {/* Organize content for better learning */}
           </h2>
           <div className="relative group rounded-2xl overflow-hidden shadow-2xl shadow-blue-500/10 border border-zinc-800/50 transition-all duration-300 hover:shadow-blue-500/20">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-950/90 z-10"></div>
@@ -65,14 +65,14 @@ function Dashboard() {
         </div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* YouTube Video Card */}
-          <div className="col-span-1 md:col-span-2 bg-zinc-900 rounded-2xl p-6 border border-zinc-800/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/5">
+          <div className=" bg-zinc-900 rounded-2xl p-6 border border-zinc-800/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/5">
             <div className="flex items-start justify-between mb-6">
               <h3 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">🎥</span>
-                <span className="bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
-                  🎥 Add & Organize YouTube Videos
+                <span className="bg-[var(--primary-color)] bg-clip-text text-transparent">
+                  Add YouTube Videos
                 </span>
               </h3>
             </div>
@@ -88,7 +88,7 @@ function Dashboard() {
               Add Videos
             </Button>
             {openVideoDialog && (
-              <DialogCloseButton
+              <UTubeVideoModel
                 open={openVideoDialog}
                 setOpen={setOpenVideoDialog}
                 userDetails={userDetails}
@@ -97,13 +97,47 @@ function Dashboard() {
             )}
           </div>
 
+
+          <div className=" bg-zinc-900 rounded-2xl p-6 border border-zinc-800/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/5">
+            <div className="flex items-start justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="text-3xl">🎥</span>
+                <span className="bg-[var(--primary-color)] bg-clip-text text-transparent">
+                   Add Custom Videos
+                </span>
+              </h3>
+            </div>
+            <p className="text-zinc-400 mb-6 ">
+            Study videos from any source except YouTube. Whether it's a lecture video, a tutorial, or your personal study material, easily store and access videos that support your learning journey
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => setOpenCustomVideoDialog(true)}
+              className=" bg-zinc-800 text-white hover:bg-blue-600 hover:text-white
+               border-zinc-700 transition-all duration-300 mx-auto"
+            >
+              Add Videos
+            </Button>
+            {openCustomVideoDialog && (
+            <CustomDialogModel
+               open={openCustomVideoDialog}
+                setOpen={setOpenCustomVideoDialog}
+                userDetails={userDetails}
+                containers={containers}
+              />
+            )}
+          </div>
+
+
+       
+
           {/* PDF Details Card */}
-          <div className="col-span-1 md:col-span-2 bg-zinc-900 rounded-2xl p-6 border border-zinc-800/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/5">
+          <div className=" bg-zinc-900 rounded-2xl p-6 border border-zinc-800/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/5">
             <div className="flex items-start justify-between mb-6">
               <h3 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">📄</span>
-                <span className="bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
-                  📄 Upload & Manage PDFs
+                <span className="bg-[var(--primary-color)] bg-clip-text text-transparent">
+                   Upload  PDFs
                 </span>
               </h3>
             </div>
@@ -127,6 +161,8 @@ function Dashboard() {
             )}
           </div>
         </div>
+
+        
       </main>
     </div>
   );

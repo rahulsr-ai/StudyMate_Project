@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 import supabase from "../utils/Supabase";
 
 const UpdatePassword = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -85,7 +84,7 @@ const UpdatePassword = () => {
 
           <p className="mt-8 text-center text-zinc-400">
             Remember your password?{" "}
-            <Link to="/login" className="text-blue-500 hover:text-blue-400">
+            <Link to="/login" className="text-[var(--primary-color)] hover:text-[var(--primary-color)]">
               Back to login
             </Link>
           </p>
