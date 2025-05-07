@@ -6,7 +6,7 @@ export const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "http://localhost:5173/dashboard",
+      redirectTo: "https://studymatenow.netlify.app/dashboard",
       scopes: "openid email",
       includeGrantedScopes: true,
       queryParams: {
@@ -64,7 +64,7 @@ export const logout = async () => {
 export const sendResetPasswordLink = async (email) => {
   
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: "http://localhost:5173/update-password",  // ✅ Yahan password reset ka frontend hoga
+    redirectTo: "https://studymatenow.netlify.app/update-password",  // ✅ Yahan password reset ka frontend hoga
     
   
   });
