@@ -176,7 +176,7 @@ const VideoGrid = ({ title, container, items , showDeleteDialog , setShowDeleteD
         className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-zinc-950/50 backdrop-blur-sm rounded-lg p-4"
         variants={containerVariants}
       >
-        {previewItems?.map((item, index) => (
+       {(Array.isArray(previewItems) ? previewItems : []).map((item, index) => (
           <motion.div
             key={index}
             variants={itemVariants}
@@ -318,8 +318,8 @@ const StudyContainers = () => {
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={pageVariants}
         >
-          {containers?.map((container, index) => (
-            <>
+          {(Array.isArray(containers) ? containers : []).map((container, index) => (
+          
               <VideoGrid
                 showDeleteDialog={showDeleteDialog}
                 setShowDeleteDialog={setShowDeleteDialog}
@@ -329,7 +329,7 @@ const StudyContainers = () => {
                 getUser={getUser}
                 items={[...container.study_box, ...container.pdf_files]}
               />
-            </>
+            
           ))}
         </motion.div>
       </div>
