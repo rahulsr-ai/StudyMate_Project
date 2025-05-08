@@ -68,8 +68,7 @@ export const getUserLatestData = async (containerId) => {
 
 export const savePdfData = async (userId, formdata) => {
      
-   console.log('this is formdata ', formdata);
-   console.log('this is userId ', userId);
+  
 
    if(!formdata?.pdfFile || !userId) {
     return alert("Please provide all the required parameters");

@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "../utils/AuthService";
 import supabase from "../utils/Supabase";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import toast from "react-hot-toast";
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -68,6 +68,8 @@ function Login() {
 
     checkUserSession();
   }, [navigate]);
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center md:p-4">
       <div
