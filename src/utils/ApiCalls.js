@@ -5,7 +5,7 @@ import axios from "axios";
 export const getUserContainersData = async (userId) => {
  
   try { 
-     const data = axios.get(`/api/user/containers/Data/${userId}`) 
+     const data = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user/containers/Data/${userId}`) 
      return data
   } catch (error) {
     console.log('frontend error while fetching user containers ', error);
@@ -22,7 +22,7 @@ export const CreateNewContainerAndAddData = async (userId, formdata) => {
   }
 
    try {
-     const {data} = axios.post(`/api/Create/NewContainer/And/AddData`,{userId, formdata})
+     const {data} = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/Create/NewContainer/And/AddData`,{userId, formdata})
      return data
    } catch (error) {
       console.log('frontend error while creating new container ', error);
@@ -35,14 +35,14 @@ export const CreateNewContainerAndAddPDFData = async (userId, formdata) => {
    console.log('formdata just before making an api call', formdata);
    console.log('userid just before making an api call', userId);
 
-  if (!formdata?.pdfFile || userId) {
+  if (!formdata?.pdfFile || !userId) {
     return alert("Please provide all the required parameters");
   }
 
   console.log('formdata just before making an api call', formdata);
 
   try {
-     const data = axios.post(`/api/Create/NewContainer/And/AddPDFData`,{userId, formdata} )
+     const data = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/Create/NewContainer/And/AddPDFData`,{userId, formdata} )
      return data
   } catch (error) {
      console.log('frontend error while creating new container ', error);
@@ -56,7 +56,7 @@ export const CreateNewContainerAndAddPDFData = async (userId, formdata) => {
 export const getUserLatestData = async (containerId) => {
  
  try {
-    const data = axios.get(`/api/user/containers/latest/data/${containerId}`)
+    const data = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user/containers/latest/data/${containerId}`)
     return data
  } catch (error) {
     console.log('frontend error while fetching latest data ', error);
@@ -161,7 +161,7 @@ export const savePdfData = async (userId, formdata) => {
 
 export const getTranscript = async (videoId ) => {
   try { 
-      const {data} =  await axios.get(`/api/getSummary?videoid=${videoId}`)
+      const {data} =  await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/getSummary?videoid=${videoId}`)
   console.log('transcript ', data);
   return data;
     
@@ -176,14 +176,14 @@ export const getTranscript = async (videoId ) => {
 
 
 export const getPdfTranscript = async (pdfUrl ) => {
-      const {data} =  await axios.get(`/api/getSummary?pdfurl=${pdfUrl}`)
+      const {data} =  await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/getSummary?pdfurl=${pdfUrl}`)
       console.log('response ', data);
       return data;
 }
 
 
 export const getPrompt = async (prompt, transcript) => {
-      const response =  await axios.post(`/api/prompt`, { prompt, transcript })
+      const response =  await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/prompt`, { prompt, transcript })
       console.log('gpt response  ', response);
       return response;
 }
@@ -219,7 +219,6 @@ export const returnPdfText = async (pdfUrl) => {
       data: encodedParams,
     };
     
-
     const response = await axios.request(options);
     console.log("pdf response is ", response.data);
   
@@ -231,7 +230,7 @@ export const returnPdfText = async (pdfUrl) => {
 
 
 export const GetCurrentStudyData = async (id) => { 
-  const {data} = await axios.get(`/api/getStudyData/${id}`)
+  const {data} = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/getStudyData/${id}`)
 }
 
 

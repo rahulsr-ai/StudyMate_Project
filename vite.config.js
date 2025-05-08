@@ -15,7 +15,7 @@ export default defineConfig({
     proxy: {
       "/api": {
         target: "https://studymaten.onrender.com/", // Your backend URL
-        changeOrigin: true,
+        changeOrigin: true, // it helps 
         secure: false, // Set to true if using HTTPS
       },
     },

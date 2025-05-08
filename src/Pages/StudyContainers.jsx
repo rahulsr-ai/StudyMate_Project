@@ -323,7 +323,6 @@ const StudyContainers = () => {
               <VideoGrid
                 showDeleteDialog={showDeleteDialog}
                 setShowDeleteDialog={setShowDeleteDialog}
-                // containerId={container.id}
                 key={index}
                 title={container.name}
                 container={container}
