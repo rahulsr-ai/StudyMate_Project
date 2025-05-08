@@ -318,7 +318,7 @@ const StudyContainers = () => {
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={pageVariants}
         >
-          {containers.map((container, index) => (
+          {containers?.map((container, index) => (
             <>
               <VideoGrid
                 showDeleteDialog={showDeleteDialog}
