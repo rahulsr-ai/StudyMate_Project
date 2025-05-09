@@ -24,7 +24,7 @@ export const HeroSection = () => {
       }}
     >
       <HeroHeader
-        title="All-in-One <br/> Study Dashboard You Can Trust"  
+        title="All-in-One <br/> Study Dashboard  <br/> You Can Trust"  
         subtitle="Your study buddy, always by your side. Focused, fun, and easy — just for you."
         primaryButtonText="Get Started"
         primaryButtonAction={handlePrimaryButtonClick}
