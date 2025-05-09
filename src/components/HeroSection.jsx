@@ -6,19 +6,26 @@ import { useNavigate } from "react-router-dom";
 export const HeroSection = () => {
   const navigate = useNavigate();
   const handlePrimaryButtonClick = () => {
-
     navigate("/login");
   };
 
   const handleSecondaryButtonClick = () => {
-     navigate("/about");
+    navigate("/about");
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f0f0f0' }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        backgroundColor: "#f0f0f0",
+      }}
+    >
       <HeroHeader
-        title="Next Level Innovation <br/> with Our Platform"
-        subtitle="Unlock your potential with our cutting-edge features and seamless integration."
+        title="All-in-One <br/> Study Dashboard You Can Trust"  
+        subtitle="Your study buddy, always by your side. Focused, fun, and easy — just for you."
         primaryButtonText="Get Started"
         primaryButtonAction={handlePrimaryButtonClick}
         secondaryButtonText="About Us"

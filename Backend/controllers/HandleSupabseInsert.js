@@ -9,6 +9,8 @@ export const getUserContainersData = async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
+    
+
     const { data, error } = await supabase
       .from("study_container")
       .select(
@@ -37,6 +39,8 @@ export const getUserContainersData = async (req, res) => {
       )
       .eq("user_id", userId);
 
+      console.log('data ye rha ', data)
+
     if (error) {
       console.error("Error fetching data:", error);
       return res.status(500).json({ error: error.message });
@@ -49,6 +53,10 @@ export const getUserContainersData = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
+
+
 
 
 // Handling Youtube video uploads and saving the url to the table
@@ -136,10 +144,7 @@ export const CreateNewContainerAndAddPDFData = async (req, res) => {
 
   console.log('formdata from backend ', finalFormData);
   
-  // if (!userId || !formdata || !formdata?.pdfFile) {
-  //   console.log("userId or formdata is missing");
-  //   return res.status(400).json({ error: "User ID or formdata is missing" });
-  // }
+
 
   try {
     const filePath = `pdfs/${Date.now()}-${formdata?.pdfFile.name}`; // Unique path
