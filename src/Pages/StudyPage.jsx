@@ -9,7 +9,6 @@ import { getTranscript } from "@/utils/ApiCalls";
 import { Copy } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import ReactPlayer from "react-player";
 
 const StudyPage = () => {
   const { id, containerId, type } = useParams();
@@ -33,7 +32,7 @@ const StudyPage = () => {
 
   const fetchData = async () => {
     try {
-      const { data } = await axios.get(`/api/container/${id}/${type}`);
+      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/container/${id}/${type}`);
       if (data && data.length > 0) {
         console.log(data);
 
