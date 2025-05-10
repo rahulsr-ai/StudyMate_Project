@@ -69,9 +69,6 @@ export const getUserLatestData = async (containerId) => {
 
 
 export const savePdfData = async (userId, formdata) => {
-     
-  
-
    if(!formdata?.pdfFile || !userId) {
     return alert("Please provide all the required parameters");
    }
@@ -177,63 +174,7 @@ export const getTranscript = async (videoId ) => {
 
 
 
-export const getPdfTranscript = async (pdfUrl ) => {
-      const {data} =  await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/getSummary?pdfurl=${pdfUrl}`)
-      console.log('response ', data);
-      return data;
-}
 
-
-export const getPrompt = async (prompt, transcript) => {
-      const response =  await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/prompt`, { prompt, transcript })
-      console.log('gpt response  ', response);
-      return response;
-}
-
-
-
-
-
-export const returnPdfText = async (pdfUrl) => {
- 
-
-  console.log("hello pdf text ");
-   
-
-  if (!pdfUrl) {
-    console.log("pdfUrl is required");
-    return 
-  }
-
-  try {
-
-    const encodedParams = new URLSearchParams();
-
-
-    const options = {
-      method: 'POST',
-      url: 'https://docxtract1.p.rapidapi.com/extract',
-      headers: {
-        'x-rapidapi-key': '1e13475c38msh63bfa16c48dfad2p11e85bjsnb30f82da05d2',
-        'x-rapidapi-host': 'docxtract1.p.rapidapi.com',
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      data: encodedParams,
-    };
-    
-    const response = await axios.request(options);
-    console.log("pdf response is ", response.data);
-  
-  } catch (error) {
-  	console.error(error);
-  }
-};
-
-
-
-export const GetCurrentStudyData = async (id) => { 
-  const {data} = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/getStudyData/${id}`)
-}
 
 
 

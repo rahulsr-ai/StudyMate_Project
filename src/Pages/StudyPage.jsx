@@ -115,6 +115,7 @@ const StudyPage = () => {
     }
   };
 
+  
   const handleSendMessage = async () => {
     if (prompt.trim() === "") return;
 
@@ -136,12 +137,7 @@ const StudyPage = () => {
     }, 100);
   };
 
-  // useEffect(() => {
-  //   const storedChat = localStorage.getItem("chatHistory");
-  //   if (storedChat) {
-  //     setChatMessages(JSON.parse(storedChat));
-  //   }
-  // }, []);
+  
 
   const formatTime = (seconds) => {
     const min = Math.floor(seconds / 60);
@@ -162,29 +158,25 @@ const StudyPage = () => {
    
 
     if (!currentStudy?.v_code) {
-      const { data } = await axios.post("/api/groq/chat", {
+      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`, {
         prompt: prompt,
-        transcript:
-          "You are a helpful assistant that answers based on the user prompt.",
       });
       console.log("response from groq from pdf ", data?.reply);
       return data?.reply;
     } else {
-      const transcript = await getTranscript(currentStudy?.v_code);
-
-      let text = transcript.plainText
-        ? transcript.plainText
-        : "No transcript found answer your questions without it and if user asked anything about the video, answer something sorry i dont have any idea which video u watching";
-
-      const { data } = await axios.post("/api/groq/chat", {
+     
+     
+      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`, {
         prompt: prompt,
-        transcript: text,
+        videoId: currentStudy?.v_code
       });
 
       console.log("response from groq for video ", data?.reply);
 
       return data?.reply;
     }
+
+    
   };
 
   return (

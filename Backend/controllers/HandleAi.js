@@ -1,7 +1,6 @@
 import axios from "axios";
-import supabase from "../db/supabase";
 import { YoutubeTranscript } from "youtube-transcript";
-
+import supabase from "Backend/db/supabase";
 
 
 
@@ -82,37 +81,42 @@ export const AiResponse =   async (req, res) => {
 }
 
 
+
+
+
 export const groqAIResponse = async (req, res) => {
   const { videoId, prompt } = req.body;
 
-  // Validate inputs
-  if (!videoId || !prompt) {
-    return res.status(400).json({ error: "Video ID or Prompt is missing" });
+  if (!prompt) {
+    return res.status(400).json({ error: "Prompt is required" });
   }
 
+  let transcript = "";
+
   try {
-    // Step 1: Fetch the transcript from the database for the video
-    const { data: transcriptData, error: transcriptError } = await supabase
-      .from('transcripts')
-      .select('text')
-      .eq('video_id', videoId)
-      .single();
+    // Step 1: If videoId exists, try to fetch transcript
+    if (videoId) {
+      const { data: transcriptData, error: transcriptError } = await supabase
+        .from('transcripts')
+        .select('text')
+        .eq('video_id', videoId)
+        .single();
 
-    let transcript = "";
+      if (transcriptError) {
+        console.warn("Transcript not found or fetch error:", transcriptError.message);
+      }
 
-    if (transcriptError) {
-      console.error("Error fetching transcript:", transcriptError.message);
-      return res.status(500).json({ error: "Failed to fetch transcript" });
-    }
-
-    // If no transcript exists, set a default message
-    if (transcriptData) {
-      transcript = transcriptData.text;
+      if (transcriptData?.text) {
+        transcript = transcriptData.text;
+      } else {
+        transcript = `No transcript available for this video. Proceeding without context.`;
+      }
     } else {
-      transcript = `You are a helpful assistant. First, always respond directly to the user's message. If the user later asks questions related to a video, you may refer to the transcript provided earlier.`;
+      // No videoId means it's probably a PDF or generic question
+      transcript = `You are a helpful assistant. First, always respond directly to the user's message.`;
     }
 
-    // Step 2: Send the transcript and user prompt to the AI service for response
+    // Step 2: Call Groq API
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
@@ -120,16 +124,19 @@ export const groqAIResponse = async (req, res) => {
         messages: [
           {
             role: "system",
-            content: `You are a helpful assistant. First, always respond directly to the user's message. If the user later asks questions related to a video, you may refer to the transcript provided earlier.`
+            content: `You are a helpful assistant. First, always respond directly to the user's message.`
           },
-          {
-            role: "user",
-            content: `This is the transcript of the video for reference: \n\n${transcript}`
-          },
-          {
-            role: "assistant",
-            content: "Thanks for the transcript! Let me know if you have any questions about it."
-          },
+          ...(videoId
+            ? [{
+                role: "user",
+                content: `This is the transcript of the video for reference:\n\n${transcript}`
+              },
+              {
+                role: "assistant",
+                content: "Thanks for the transcript! Let me know if you have any questions about it."
+              }]
+            : []
+          ),
           {
             role: "user",
             content: prompt
@@ -146,10 +153,11 @@ export const groqAIResponse = async (req, res) => {
     );
 
     const reply = response.data.choices[0].message.content;
-    return res.status(200).json({ prompt: prompt, reply: reply });
+    return res.status(200).json({ prompt, reply });
 
   } catch (error) {
     console.error("Groq API Error:", error.response?.data || error.message);
     return res.status(500).json({ error: "Groq API failed" });
   }
 };
+
