@@ -126,14 +126,39 @@ export const CreateNewContainerAndAddData = async (req, res) => {
       return res.status(500).json({ error: "Failed to insert video data" });
     }
     console.log("Video data inserted successfully:", videos);
-    return res
-      .status(201)
-      .json({ message: "Data added successfully", containerId, videos });
+
+
+    // Step 4: Fetch and save transcript for the video
+    const transcript = await YoutubeTranscript.fetchTranscript(formdata.videoID); // Use the video ID provided
+    const flatTranscript = transcript.flat();
+    const plainText = flatTranscript
+      .map((item) => item.text)
+      .filter((text) => !!text && text.trim() !== "" && !text.includes("[संगीत]"))
+      .join(" ");
+
+    // Save the transcript in the database
+    const { error: insertTranscriptError } = await supabase
+      .from("transcripts")
+      .insert([{ video_id: formdata.videoID, text: plainText }]);
+
+    if (insertTranscriptError) {
+      console.error("Error saving transcript:", insertTranscriptError.message);
+    } else {
+      console.log("Transcript saved successfully!");
+    }
+
+    return res.status(201).json({
+      message: "Data added successfully, including transcript if available",
+      containerId,
+      videos,
+    });
+
   } catch (error) {
-    console.log("error in CreateNewContainerAndAddData ", error);
+    console.log("error in CreateNewContainerAndAddData", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
 

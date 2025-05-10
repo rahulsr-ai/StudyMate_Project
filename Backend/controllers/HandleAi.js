@@ -1,4 +1,5 @@
 import axios from "axios";
+import supabase from "../db/supabase";
 import { YoutubeTranscript } from "youtube-transcript";
 
 
@@ -81,19 +82,37 @@ export const AiResponse =   async (req, res) => {
 }
 
 
-
 export const groqAIResponse = async (req, res) => {
-  const { prompt, transcript } = req.body;
+  const { videoId, prompt } = req.body;
 
-  console.log('this is the transcript ', transcript);
-  console.log('this is the prompt ', prompt);
-
-  if (!prompt|| !transcript) {
-    return res.status(400).json({ error: "Prompt or Transcript is missing" });
+  // Validate inputs
+  if (!videoId || !prompt) {
+    return res.status(400).json({ error: "Video ID or Prompt is missing" });
   }
-  
 
   try {
+    // Step 1: Fetch the transcript from the database for the video
+    const { data: transcriptData, error: transcriptError } = await supabase
+      .from('transcripts')
+      .select('text')
+      .eq('video_id', videoId)
+      .single();
+
+    let transcript = "";
+
+    if (transcriptError) {
+      console.error("Error fetching transcript:", transcriptError.message);
+      return res.status(500).json({ error: "Failed to fetch transcript" });
+    }
+
+    // If no transcript exists, set a default message
+    if (transcriptData) {
+      transcript = transcriptData.text;
+    } else {
+      transcript = `You are a helpful assistant. First, always respond directly to the user's message. If the user later asks questions related to a video, you may refer to the transcript provided earlier.`;
+    }
+
+    // Step 2: Send the transcript and user prompt to the AI service for response
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
@@ -101,8 +120,7 @@ export const groqAIResponse = async (req, res) => {
         messages: [
           {
             role: "system",
-            content: `You are a helpful assistant. First, always respond directly to the user's message.
-    If the user later asks questions related to a video, you may refer to the transcript provided earlier.`
+            content: `You are a helpful assistant. First, always respond directly to the user's message. If the user later asks questions related to a video, you may refer to the transcript provided earlier.`
           },
           {
             role: "user",
@@ -126,12 +144,12 @@ export const groqAIResponse = async (req, res) => {
         }
       }
     );
-    
 
     const reply = response.data.choices[0].message.content;
     return res.status(200).json({ prompt: prompt, reply: reply });
+
   } catch (error) {
     console.error("Groq API Error:", error.response?.data || error.message);
-   return res.status(500).json({ error: "Groq API failed" });
+    return res.status(500).json({ error: "Groq API failed" });
   }
-}
+};
