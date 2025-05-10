@@ -155,8 +155,8 @@ const StudyPage = () => {
     }
   };
 
+  
   const getSummary = async () => {
-   
 
     if (!currentStudy?.v_code) {
       const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`, {
@@ -165,7 +165,6 @@ const StudyPage = () => {
       console.log("response from groq from pdf ", data?.reply);
       return data?.reply;
     } else {
-     
      
       const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`, {
         prompt: prompt,

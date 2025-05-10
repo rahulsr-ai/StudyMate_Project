@@ -1,3 +1,4 @@
+import { YoutubeTranscript } from "youtube-transcript";
 import supabase from "../db/supabase.js";
 
 // Fetching user containers data

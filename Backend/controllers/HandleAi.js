@@ -1,10 +1,8 @@
 import axios from "axios";
-import { YoutubeTranscript } from "youtube-transcript";
 
 // if HandleAi.js is in /Backend/controllers and supabase.js is in /Backend/db
 import supabase from '../db/supabase.js';
-
-
+import { YoutubeTranscript } from "youtube-transcript";
 
 
 export const getVideosSummary = async (req, res) => {
