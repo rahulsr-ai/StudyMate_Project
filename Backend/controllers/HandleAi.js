@@ -1,6 +1,8 @@
 import axios from "axios";
 import { YoutubeTranscript } from "youtube-transcript";
-import supabase from "Backend/db/supabase";
+
+// if HandleAi.js is in /Backend/controllers and supabase.js is in /Backend/db
+import supabase from '../db/supabase.js';
 
 
 
@@ -79,8 +81,6 @@ export const AiResponse =   async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch prompt" });
   }
 }
-
-
 
 
 

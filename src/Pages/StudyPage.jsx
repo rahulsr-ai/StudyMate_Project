@@ -5,10 +5,11 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import YouTube from "react-youtube";
 import supabase from "@/utils/Supabase";
-import { getTranscript } from "@/utils/ApiCalls";
 import { Copy } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoMdArrowRoundBack } from "react-icons/io";
+
+
 
 const StudyPage = () => {
   const { id, containerId, type } = useParams();
@@ -176,7 +177,7 @@ const StudyPage = () => {
       return data?.reply;
     }
 
-    
+
   };
 
   return (
