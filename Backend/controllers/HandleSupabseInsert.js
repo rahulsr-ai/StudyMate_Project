@@ -129,15 +129,27 @@ export const CreateNewContainerAndAddData = async (req, res) => {
     console.log("Video data inserted successfully:", videos);
 
 
-    // Step 4: Fetch and save transcript for the video
-    const transcript = await YoutubeTranscript.fetchTranscript(formdata.videoID); // Use the video ID provided
+  
+    // Step 4: Fetch and save transcript for the video (with safe throttle and error handling)
+try {
+  // Add a delay to avoid rate limits (1 second)
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  // Optional: Check if transcript already exists
+  const { data: existingTranscript } = await supabase
+    .from("transcripts")
+    .select("id")
+    .eq("video_id", formdata.videoID)
+    .single();
+
+  if (!existingTranscript) {
+    const transcript = await YoutubeTranscript.fetchTranscript(formdata.videoID);
     const flatTranscript = transcript.flat();
     const plainText = flatTranscript
       .map((item) => item.text)
       .filter((text) => !!text && text.trim() !== "" && !text.includes("[संगीत]"))
       .join(" ");
 
-    // Save the transcript in the database
     const { error: insertTranscriptError } = await supabase
       .from("transcripts")
       .insert([{ video_id: formdata.videoID, text: plainText }]);
@@ -147,12 +159,16 @@ export const CreateNewContainerAndAddData = async (req, res) => {
     } else {
       console.log("Transcript saved successfully!");
     }
+  } else {
+    console.log("Transcript already exists, skipping fetch.");
+  }
 
-    return res.status(201).json({
-      message: "Data added successfully, including transcript if available",
-      containerId,
-      videos,
-    });
+} catch (transcriptError) {
+  console.error("Error fetching transcript:", transcriptError.message);
+}
+
+
+
 
   } catch (error) {
     console.log("error in CreateNewContainerAndAddData", error);
