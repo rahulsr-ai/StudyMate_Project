@@ -16,7 +16,7 @@ const AboutUs = ({
       summary:
         "Studying often feels overwhelming — with notes everywhere, inconsistent schedules, and lost learning content. StudyMate was created to bring clarity to your chaos. It combines everything you need in one smart workspace, powered by AI. From organizing your materials to simplifying your study flow, it helps you stay focused, reduce stress, and truly enjoy the process of learning.",
       url: "https://shadcnblocks.com",
-      image: "/images/block/placeholder-dark-1.svg",
+      image: "about_svg/studymate.svg",
       tags: ["Student Productivity", "Smart Learning", "Simplified Study"],
     },
     {
@@ -25,7 +25,7 @@ const AboutUs = ({
       summary:
         "Forget about jumping between folders and scattered files. With StudyMate’s Study Boxes, you can create subject-wise spaces to store your notes, goals, links, tasks, and more — all in one clean, visual layout. It’s like your digital bookshelf, customized just for your learning style.",
       url: "https://shadcnblocks.com",
-      image: "/images/block/placeholder-dark-1.svg",
+      image: "/about_svg/study-box.svg",
       tags: ["Subject Wise", "Resource Organizer", "Smart Shelf"],
     },
     {
@@ -34,7 +34,7 @@ const AboutUs = ({
       summary:
         "Tired of messy and unstructured notes? StudyMate lets you write, edit, and neatly organize your notes with smart features. Add tags, highlight important lines, and let AI turn long text into short, easy-to-revise points. Ideal for those who want notes that are both sharp and searchable.",
       url: "https://shadcnblocks.com",
-      image: "/images/block/placeholder-dark-1.svg",
+      image: "/about_svg/smart-note.svg",
       tags: ["AI Note Helper", "Quick Revision", "Smart Note Organizer"],
     },
     {
@@ -43,7 +43,7 @@ const AboutUs = ({
       summary:
         "Why take notes manually when AI can do it for you? With StudyMate, whenever you watch a video or explore a topic, our AI understands the content and instantly generates key takeaways, summaries, and topic-based notes — saving hours of effort while improving retention and clarity.",
       url: "https://shadcnblocks.com",
-      image: "/images/block/placeholder-dark-1.svg",
+      image: "/about_svg/ai-study.svg",
       tags: ["AI Summary", "Video Context", "Auto Notes"],
     },
   ],
@@ -123,7 +123,7 @@ const AboutUs = ({
                         <img
                           src={post.image}
                           alt={post.title}
-                          className="h-full w-full object-cover transition-opacity duration-200 fade-in hover:opacity-70"
+                          className="h-full w-full object-contain transition-opacity duration-200 fade-in hover:opacity-70"
                         />
                       </div>
                     </a>

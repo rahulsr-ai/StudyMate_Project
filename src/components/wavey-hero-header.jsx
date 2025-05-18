@@ -163,9 +163,10 @@ export const HeroHeader = ({
           <div
             className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl p-4 transform-gpu transition-transform duration-500 -rotate-x-8 -skew-x-12">
             <img
-              src={imageSrc}
+              src={"/svg/thesis-animate.svg"}
               alt="Hero Visual"
               className="w-full h-auto object-contain rounded-2xl" />
+              
           </div>
         </div>
       </div>
@@ -173,4 +174,4 @@ export const HeroHeader = ({
   );
 };
 
-HeroHeader.defaultProps = defaultProps;
+HeroHeader.defaultProps = defaultProps

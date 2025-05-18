@@ -10,8 +10,6 @@ export const getUserContainersData = async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
-    
-
     const { data, error } = await supabase
       .from("study_container")
       .select(
@@ -40,7 +38,7 @@ export const getUserContainersData = async (req, res) => {
       )
       .eq("user_id", userId);
 
-      console.log('data ye rha ', data)
+    console.log("data ye rha ", data);
 
     if (error) {
       console.error("Error fetching data:", error);
@@ -55,16 +53,10 @@ export const getUserContainersData = async (req, res) => {
   }
 };
 
-
-
-
-
-
 // Handling Youtube video uploads and saving the url to the table
 export const CreateNewContainerAndAddData = async (req, res) => {
   const { userId, formdata } = req.body;
   if (!userId || !formdata) {
-    console.log("userId or formdata is missing");
     return res.status(400).json({ error: "User ID or formdata is missing" });
   }
 
@@ -98,8 +90,12 @@ export const CreateNewContainerAndAddData = async (req, res) => {
         .single();
 
       if (insertError) {
-        console.error("Error inserting new container:", insertError.message);
-        return res.status(500).json({ error: "Failed to create container" });
+        return res
+          .status(500)
+          .json({
+            error: "Failed to create new container",
+            message: insertError.message,
+          });
       }
 
       console.log("New container created:", newContainer);
@@ -123,70 +119,83 @@ export const CreateNewContainerAndAddData = async (req, res) => {
       .select("*");
 
     if (videoError) {
-      console.error("Error inserting video data:", videoError.message);
-      return res.status(500).json({ error: "Failed to insert video data" });
+      return res
+        .status(500)
+        .json({
+          error: "Failed to insert video data",
+          message: videoError.message,
+        });
     }
+
     console.log("Video data inserted successfully:", videos);
 
-
-  
     // Step 4: Fetch and save transcript for the video (with safe throttle and error handling)
-try {
-  // Add a delay to avoid rate limits (1 second)
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      // Add a delay to avoid rate limits (1 second)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  // Optional: Check if transcript already exists
-  const { data: existingTranscript } = await supabase
-    .from("transcripts")
-    .select("id")
-    .eq("video_id", formdata.videoID)
-    .single();
+      // Optional: Check if transcript already exists
+      const { data: existingTranscript } = await supabase
+        .from("transcripts")
+        .select("id")
+        .eq("video_id", formdata.videoID)
+        .single();
 
-  if (!existingTranscript) {
-    const transcript = await YoutubeTranscript.fetchTranscript(formdata.videoID);
-    const flatTranscript = transcript.flat();
-    const plainText = flatTranscript
-      .map((item) => item.text)
-      .filter((text) => !!text && text.trim() !== "" && !text.includes("[संगीत]"))
-      .join(" ");
+      if (!existingTranscript) {
+        const transcript = await YoutubeTranscript.fetchTranscript(
+          formdata.videoID
+        );
+        const flatTranscript = transcript.flat();
+        const plainText = flatTranscript
+          .map((item) => item.text)
+          .filter(
+            (text) => !!text && text.trim() !== "" && !text.includes("[संगीत]")
+          )
+          .join(" ");
 
-    const { error: insertTranscriptError } = await supabase
-      .from("transcripts")
-      .insert([{ video_id: formdata.videoID, text: plainText }]);
+        const { error: insertTranscriptError } = await supabase
+          .from("transcripts")
+          .insert([{ video_id: formdata.videoID, text: plainText }]);
 
-    if (insertTranscriptError) {
-      console.error("Error saving transcript:", insertTranscriptError.message);
-    } else {
-      console.log("Transcript saved successfully!");
+        if (insertTranscriptError) {
+          console.error(
+            "Error saving transcript:",
+            insertTranscriptError.message
+          );
+          return res
+            .status(500)
+            .json({
+              error: "Failed to fetch transcript",
+              message: insertTranscriptError.message,
+            });
+        } else {
+          console.log("Transcript saved successfully!");
+        }
+      } else {
+        console.log("Transcript already exists, skipping fetch.");
+      }
+    } catch (transcriptError) {
+      console.error("Error fetching transcript:", transcriptError.message);
+      return res
+        .status(500)
+        .json({ error: "Failed to Add Data in the container " });
     }
-  } else {
-    console.log("Transcript already exists, skipping fetch.");
-  }
 
-} catch (transcriptError) {
-  console.error("Error fetching transcript:", transcriptError.message);
-}
-
-
-
-
+    return res.status(200).json({ success: true });
   } catch (error) {
     console.log("error in CreateNewContainerAndAddData", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ error: "Failed to Add Data in the container " });
   }
 };
-
-
-
 
 // Handling pdf uploads and saving to supabase storage
 export const CreateNewContainerAndAddPDFData = async (req, res) => {
   // const { userId, formdata } =  req.body;
-  const { finalFormData } =  req.body;
+  const { finalFormData } = req.body;
 
-  console.log('formdata from backend ', finalFormData);
-  
-
+  console.log("formdata from backend ", finalFormData);
 
   try {
     const filePath = `pdfs/${Date.now()}-${formdata?.pdfFile.name}`; // Unique path
@@ -201,7 +210,7 @@ export const CreateNewContainerAndAddPDFData = async (req, res) => {
       return res.status(500).json({ error: "Failed to upload file" });
     }
 
-    // Get the file URL to save on our table 
+    // Get the file URL to save on our table
     const { data: urlData } = supabase.storage
       .from("pdf-uploads")
       .getPublicUrl(filePath);
@@ -242,16 +251,15 @@ export const CreateNewContainerAndAddPDFData = async (req, res) => {
       console.log("New container created:", newContainer);
       containerId = newContainer.id;
     }
-  
 
-     console.log('containerId ', containerId);
-     console.log('name is ', formdata.pdfFile)
-     
+    console.log("containerId ", containerId);
+    console.log("name is ", formdata.pdfFile);
+
     // Insert metadata into the database
     const { data: dbData, error: dbError } = await supabase
       .from("pdf_files")
       .insert([
-        {    
+        {
           container_id: containerId, // Link to study_box ID
           name: formdata.pdfFile[0].name,
           description: formdata[0].description,
@@ -271,28 +279,25 @@ export const CreateNewContainerAndAddPDFData = async (req, res) => {
     return res
       .status(201)
       .json({ message: "Data added successfully", containerId, dbData });
-      
   } catch (error) {
     console.log("error in CreateNewContainerAndAddPDFData ", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-
-
 // Fetching user containers data
 export const getUserLatestData = async (req, res) => {
-    const { containerId } = req.params;
-    if (!containerId) {
-      return res.status(400).json({ error: "Container ID is required" });
-    }
-  
-    // Fetching user containers data
-    try {
-      const { data, error } = await supabase
-        .from("study_container")
-        .select(
-          `
+  const { containerId } = req.params;
+  if (!containerId) {
+    return res.status(400).json({ error: "Container ID is required" });
+  }
+
+  // Fetching user containers data
+  try {
+    const { data, error } = await supabase
+      .from("study_container")
+      .select(
+        `
        id,
        name,
        study_box!left (
@@ -314,23 +319,18 @@ export const getUserLatestData = async (req, res) => {
          description
        )
      `
-        )
-        .eq("id", containerId); // 🎯 Only this container
-  
-      if (error) {
-        console.error("Error fetching data:", error);
-        return res.status(500).json({ error: error.message });
-      } else {
-        console.log("Fetched Latest Data:", data);
-        return res.status(200).json(data);
-      }
-  
-  
-    } catch (error) {
-      console.log("error in getUserLatestData ", error);
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-  
+      )
+      .eq("id", containerId); // 🎯 Only this container
 
-  
+    if (error) {
+      console.error("Error fetching data:", error);
+      return res.status(500).json({ error: error.message });
+    } else {
+      console.log("Fetched Latest Data:", data);
+      return res.status(200).json(data);
+    }
+  } catch (error) {
+    console.log("error in getUserLatestData ", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};

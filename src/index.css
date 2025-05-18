@@ -16,8 +16,8 @@
 }
 
 :root {
-  --primary-color: #3ade28;
-  --primary-color-hover: #13a11c;
+  --primary-color: rgb(50, 105, 208);
+  --primary-color-hover: rgb(22, 91, 220);
   --secondary-color: #6c757d;
   --radius: 0.625rem;
   --background: oklch(1 0 0);

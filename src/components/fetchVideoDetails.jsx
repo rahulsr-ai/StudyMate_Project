@@ -19,17 +19,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {  CreateNewContainerAndAddData } from "@/utils/ApiCalls";
+import { CreateNewContainerAndAddData } from "@/utils/ApiCalls";
 import { useEffect, useState } from "react";
 
-export function UTubeVideoModel({
-  open,
-  setOpen,
-  userDetails,
-  containers,
-}) {
-
+export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
   const [creatingNewContainer, setCreatingNewContainer] = useState(false);
+  const [newContainerName, setNewContainerName] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     url: "",
@@ -40,10 +36,10 @@ export function UTubeVideoModel({
     videoID: "",
     html: "",
   });
+
   const [videoFetched, setVideoFetched] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔹 Extract Video ID from YouTube URL
   const extractVideoID = (url) => {
     const match = url.match(
       /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
@@ -51,9 +47,6 @@ export function UTubeVideoModel({
     return match ? match[1] : null;
   };
 
-
-
-  // 🔹 Fetch Video Details
   const fetchVideoDetails = async () => {
     setError("");
     const videoID = extractVideoID(formData.url);
@@ -84,23 +77,25 @@ export function UTubeVideoModel({
     }
   };
 
-  // 🔹 Handle Input Change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Handle Form Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setLoading(true);
 
-     const res = await CreateNewContainerAndAddData(userDetails?.id, formData);
+    const containerName = creatingNewContainer
+      ? newContainerName
+      : formData.container;
 
-    // const res = await createNewContainer(userDetails?.id, formData);
-    console.log(res); 
+    const res = await CreateNewContainerAndAddData(userDetails?.id, {
+      ...formData,
+      container: containerName,
+    });
 
-
-    setCreatingNewContainer(false)
+    setCreatingNewContainer(false);
+    setNewContainerName("");
     setFormData({
       url: "",
       title: "",
@@ -109,89 +104,74 @@ export function UTubeVideoModel({
       thumbnail: "",
       videoID: "",
       html: "",
-    })
-    setVideoFetched(false)
+    });
+    setVideoFetched(false);
+    setLoading(false);
     setOpen(false);
   };
 
-  useEffect(() => {
-    // createNewContainer(userDetails?.id, newContainer);
-  }, []);
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-[var(--foreground)] border-none rounded-md ">
         <DialogHeader>
-          <DialogTitle>Share Video</DialogTitle>
+          <DialogTitle className={"text-[var(--primary-color)]"}>Share Video</DialogTitle>
           <DialogDescription>
             Fill in the details and save the video info.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          {/* 🔹 URL Input + Fetch Button in Same Row */}
           <div className="flex gap-2">
             <Input
               id="url"
               name="url"
               placeholder="Paste the YouTube URL..."
-              value={formData.url}
+              value={formData?.url || ""}
               onChange={handleChange}
               required
+              className={"text-white dark:text-black"}
             />
-            <Button onClick={fetchVideoDetails} type="button">
+            <Button onClick={fetchVideoDetails} type="button" className={"hover:bg-[var(--primary-color-hover)] bg-[var(--primary-color)]"}>
               Fetch Video
             </Button>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          {/* 🔹 Show Video Preview (Thumbnail + Iframe) */}
-           {/* {videoFetched && (
-            <div className="grid gap-2">
-              <Label>Video Preview</Label>
-              <iframe
-                src={`https://www.youtube.com/embed/${formData.videoID}`}
-                className="w-full h-48 rounded-lg"
-                allowFullScreen
-              ></iframe>
-            </div>
-          )}  */}
-
-          {/* 🔹 Title Input (Auto-filled after Fetch) */}
-          {videoFetched && (
-            <div className="grid gap-2">
-              <Label htmlFor="title">Name</Label>
-              <Input
-                id="title"
-                name="title"
-                placeholder="Enter video title..."
-                value={formData.title}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          )}
-
-          {/* 🔹 Other Fields (Show only if video is fetched) */}
           {videoFetched && (
             <>
-              {/* Category Select */}
-              <div className="grid gap-2 ">
+              <div className="grid gap-2">
+                <Label htmlFor="title">Name</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  placeholder="Enter video title..."
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                 className={"text-white"}
+                />
+              </div>
+
+              <div className="grid gap-2">
                 <Label>Study Containers</Label>
                 <Select
-                 className="overflow-y-scroll"
+                  value={formData.container || ""}
                   onValueChange={(value) => {
                     if (value === "new") {
                       setCreatingNewContainer(true);
+                      setFormData({ ...formData, container: "" });
                     } else {
+                      setCreatingNewContainer(false);
                       setFormData({ ...formData, container: value });
                     }
                   }}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose Study Container" />
+                  <SelectTrigger className="w-full text-white">
+                    <SelectValue placeholder="Choose Study Container"/>
                   </SelectTrigger>
-                  <SelectContent className={"max-h-52 overflow-y-auto"}>
+                  <SelectContent className="max-h-52 overflow-y-auto">
                     <SelectGroup>
                       <SelectLabel>Containers</SelectLabel>
                       {containers.map((container, index) => (
@@ -206,20 +186,19 @@ export function UTubeVideoModel({
                   </SelectContent>
                 </Select>
 
-                {/* Input for New Container */}
                 {creatingNewContainer && (
                   <div className="flex gap-2 mt-2">
                     <Input
-                      id="container"
-                      name="container"
+                      id="new-container"
                       placeholder="Enter container name..."
-                      onChange={handleChange}
+                      value={newContainerName}
+                      onChange={(e) => setNewContainerName(e.target.value)}
+                      className={"text-white"}
                     />
                   </div>
                 )}
               </div>
 
-              {/* Description Textarea */}
               <div className="grid gap-2">
                 <Label htmlFor="description">Quick Notes</Label>
                 <Textarea
@@ -228,19 +207,30 @@ export function UTubeVideoModel({
                   placeholder="Any additional notes..."
                   value={formData.description}
                   onChange={handleChange}
+                  className={"text-white"}
                 />
               </div>
+
+              <DialogFooter className="mt-4">
+                <Button type="submit" className="px-4 hover:bg-[var(--primary-color-hover)] bg-[var(--primary-color)]">
+                  Save
+                </Button>
+              </DialogFooter>
             </>
           )}
+        
 
-          {/* 🔹 Save Button */}
-          {videoFetched && (
-            <DialogFooter className="mt-4">
-              <Button type="submit" className="px-4">
-                Save
-              </Button>
-            </DialogFooter>
-          )}
+
+          { loading && 
+           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                <div className=" dark:bg-gray-800 md:rounded-lg p-6 shadow-lg flex items-center justify-center">
+                  {/* Spinner */}
+                  <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
+                </div>
+              </div>
+          }
+
+
         </form>
       </DialogContent>
     </Dialog>

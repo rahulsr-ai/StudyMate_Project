@@ -20,8 +20,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CreateNewContainerAndAddPDFData, savePdfData} from "@/utils/ApiCalls";
-import axios from "axios";
+import { savePdfData} from "@/utils/ApiCalls";
+
+
+
 
 export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
   const [formData, setFormData] = useState({
@@ -33,15 +35,20 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
   });
   const [error, setError] = useState("");
   const [creatingNewContainer, setCreatingNewContainer] = useState(false);
+    const [loading, setLoading] = useState(false);
 
   // Handle File Upload
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    console.log(file);
+    
+
     if (file && file.type === "application/pdf") {
       setFormData({
         ...formData,
         pdfFile: file,
         pdfPreview: URL.createObjectURL(file),
+        title: file.name
       });
       setError("");
     } else {
@@ -57,6 +64,7 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
   // Handle Form Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true)
     console.log("form data", formData);
 
     if (!formData.pdfFile) {
@@ -66,22 +74,8 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
 
     
     await savePdfData(userDetails?.id, formData);
+    setLoading(false)
     setOpen(false);
-
-  //   try {
-      
-      
-      
-  //     const response  = axios.post(`/api/Create/NewContainer/And/AddPDFData`, {finalFormData},  )
-
-  //     setOpen(false);
-  //     console.log('data just before returning ', response);
-      
-  //     return 
-  //  } catch (error) {
-  //     console.log('frontend error while creating new container ', error);
-  //     return null
-  //  }
 
     
   };
@@ -89,9 +83,9 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
   
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-[var(--foreground)] border-none rounded-md ">
         <DialogHeader>
-          <DialogTitle>Upload PDF</DialogTitle>
+          <DialogTitle className={"text-[var(--primary-color)]"}>Upload PDF</DialogTitle>
           <DialogDescription>
             Select a PDF file and provide details to upload.
           </DialogDescription>
@@ -107,6 +101,7 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
               accept="application/pdf"
               onChange={handleFileChange}
               required
+              className={"bg-gray-200"}
             />
           </div>
           {error && <p className="text-red-500">{error}</p>}
@@ -115,13 +110,13 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
           <div className="grid gap-2">
             <Label htmlFor="title">Name</Label>
             <Input
-              
               id="title"
               name="title"
               placeholder="Enter Pdf name..."
-              value={formData.title}
+              value={formData?.title || ""}
               onChange={handleChange}
               required
+              className={"text-white"}
             />
           </div>
 
@@ -137,7 +132,7 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
                 }
               }}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full text-white">
                 <SelectValue placeholder="Choose Study Container" />
               </SelectTrigger>
               <SelectContent>
@@ -163,6 +158,7 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
                   name="container"
                   placeholder="Enter container name..."
                   onChange={handleChange}
+                className={"text-white"}
                 />
               </div>
             )}
@@ -177,15 +173,26 @@ export function UploadPdfDialog({ open, setOpen, userDetails, containers }) {
               placeholder="Any additional notes..."
               value={formData.description}
               onChange={handleChange}
+              className={"text-white"}
             />
           </div>
 
           {/* Save Button */}
           <DialogFooter className="mt-4">
-            <Button type="submit" className="px-4">
-              Save
+            <Button type="submit" className="px-4 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)]">
+              Create
             </Button>
           </DialogFooter>
+
+          { loading && 
+           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                <div className=" dark:bg-gray-800 md:rounded-lg p-6 shadow-lg flex items-center justify-center">
+                  {/* Spinner */}
+                  <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
+                </div>
+              </div>
+          }
+
         </form>
       </DialogContent>
     </Dialog>

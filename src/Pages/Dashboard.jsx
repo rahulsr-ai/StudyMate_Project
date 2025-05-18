@@ -4,11 +4,10 @@ import { UTubeVideoModel } from "@/components/fetchVideoDetails";
 import { UploadPdfDialog } from "@/components/fetchPdfDetails";
 import supabase from "@/utils/Supabase";
 import { getUserContainersData } from "@/utils/ApiCalls";
-import {CustomDialogModel}  from "../components/CustomVideoDetails";
+
 
 function Dashboard() {
   const [openVideoDialog, setOpenVideoDialog] = useState(false);
-  const [openCustomVideoDialog, setOpenCustomVideoDialog] = useState(false);
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [containers, setContainers] = useState([]);
@@ -65,7 +64,7 @@ function Dashboard() {
         </div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {/* YouTube Video Card */}
           <div className=" bg-zinc-900 rounded-2xl p-6 border border-zinc-800/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/5">
             <div className="flex items-start justify-between mb-6">
@@ -98,38 +97,7 @@ function Dashboard() {
           </div>
 
 
-          <div className=" bg-zinc-900 rounded-2xl p-6 border border-zinc-800/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/5">
-            <div className="flex items-start justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                <span className="text-3xl">🎥</span>
-                <span className="bg-[var(--primary-color)] bg-clip-text text-transparent">
-                   Add Custom Videos
-                </span>
-              </h3>
-            </div>
-            <p className="text-zinc-400 mb-6 ">
-            Study videos from any source except YouTube. Whether it's a lecture video, a tutorial, or your personal study material, easily store and access videos that support your learning journey
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => setOpenCustomVideoDialog(true)}
-              className=" bg-zinc-800 text-white hover:bg-blue-600 hover:text-white
-               border-zinc-700 transition-all duration-300 mx-auto"
-            >
-              Add Videos
-            </Button>
-            {openCustomVideoDialog && (
-            <CustomDialogModel
-               open={openCustomVideoDialog}
-                setOpen={setOpenCustomVideoDialog}
-                userDetails={userDetails}
-                containers={containers}
-              />
-            )}
-          </div>
-
-
-       
+    
 
           {/* PDF Details Card */}
           <div className=" bg-zinc-900 rounded-2xl p-6 border border-zinc-800/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/5">
