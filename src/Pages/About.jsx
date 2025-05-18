@@ -119,7 +119,7 @@ const AboutUs = ({
                       rel="noreferrer"
                       className="block"
                     >
-                      <div className="aspect-[16/9] overflow-clip rounded-lg border border-border">
+                      <div className="aspect-[16/9] overflow-clip rounded-lg ">
                         <img
                           src={post.image}
                           alt={post.title}
