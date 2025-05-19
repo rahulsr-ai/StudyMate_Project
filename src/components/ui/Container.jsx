@@ -23,8 +23,7 @@ function Sets() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
 
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   const location = useLocation();
   const { container, container_id } = location.state || {};
 
@@ -53,8 +52,6 @@ function Sets() {
   useEffect(() => {
     fetchData();
   }, [openItemId]);
-
-
 
   const editNotes = async (id, notes, url) => {
     if (!(container_id && id && notes && url)) {
@@ -116,12 +113,24 @@ function Sets() {
         .eq("container_id", container_id);
     }
 
-    fetchData(); // refresh list
-    setShowDeleteDialog(false); // close dialog
+    fetchData();
+    setShowDeleteDialog(false);
     setSelectedItemId(null);
   };
 
-
+  const SkeletonCard = () => (
+    <div className="flex flex-col gap-4">
+      <div className="bg-zinc-700 rounded-md aspect-video animate-pulse" />
+      <div className="w-full h-10 bg-zinc-800 rounded-md animate-pulse" />
+      <div className="flex justify-between items-center">
+        <div className="h-5 w-40 bg-zinc-700 rounded-md animate-pulse" />
+        <div className="h-5 w-5 bg-zinc-600 rounded-full animate-pulse" />
+      </div>
+      <div className="h-4 w-full bg-zinc-800 rounded-md animate-pulse" />
+      <div className="h-4 w-5/6 bg-zinc-800 rounded-md animate-pulse" />
+      <div className="h-4 w-3/4 bg-zinc-800 rounded-md animate-pulse" />
+    </div>
+  );
 
   return (
     <div className="w-full bg-gradient-to-br from-zinc-900 to-black">
@@ -129,25 +138,30 @@ function Sets() {
         <div className="flex flex-col gap-10">
           <div className="flex gap-4 flex-col items-start">
             <div className="flex gap-2 flex-col">
-              <h2 className="text-4xl font-bold mb-6 bg-[var(--primary-color)] bg-clip-text text-transparent">
-                {container?.name || "Container"}
-              </h2>
-              <p className="text-lg max-w-xl lg:max-w-lg leading-relaxed tracking-tight text-left text-gray-400">
-                Managing a small business today is already tough.
-              </p>
+              {loading ? (
+                <>
+                  <div className="h-10 w-64 bg-zinc-700 rounded-md animate-pulse" />
+                  <div className="h-5 w-96 bg-zinc-800 rounded-md animate-pulse" />
+                </>
+              ) : (
+                <>
+                  <h2 className="text-4xl font-bold mb-6 bg-[var(--primary-color)] bg-clip-text text-transparent">
+                    {container?.name || "Container"}
+                  </h2>
+                  <p className="text-lg max-w-xl lg:max-w-lg leading-relaxed tracking-tight text-left text-gray-400">
+                    Managing a small business today is already tough.
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
           {loading ? (
-            
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-                <div className=" dark:bg-gray-800 md:rounded-lg p-6 shadow-lg flex items-center justify-center">
-                  {/* Spinner */}
-                  <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
-                </div>
-              </div>
-          
-    
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <SkeletonCard key={index} />
+              ))}
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
               {mergedArray.map((item, index) => (
@@ -178,8 +192,9 @@ function Sets() {
 
                   <button
                     className="w-full border-[var(--primary-color)] border-2 bg-transparent text-white p-2 rounded-md"
-                    onClick={() => {setOpenItemId(item.id) 
-                      navigate(`/topic/${container_id}/${item.id}/${item.v_title ? "video" : "pdf"}`)
+                    onClick={() => {
+                      setOpenItemId(item.id);
+                      navigate(`/topic/${container_id}/${item.id}/${item.v_title ? "video" : "pdf"}`);
                     }}
                   >
                     Open Media
@@ -223,14 +238,9 @@ function Sets() {
                         />
                       </AlertDialogTrigger>
                       {showDeleteDialog && selectedItemId === item.id && (
-                        <AlertDialogContent 
-                        className={
-                          "bg-gradient-to-br from-zinc-900 to-black rounded-lg p-4 shadow-lg"
-                        }>
+                        <AlertDialogContent className="bg-gradient-to-br from-zinc-900 to-black rounded-lg p-4 shadow-lg">
                           <AlertDialogHeader>
-                            <AlertDialogTitle
-                            className={"text-lg font-semibold mb-2 text-white"}
-                            >
+                            <AlertDialogTitle className="text-lg font-semibold mb-2 text-white">
                               Are you sure you want to delete?
                             </AlertDialogTitle>
                           </AlertDialogHeader>
