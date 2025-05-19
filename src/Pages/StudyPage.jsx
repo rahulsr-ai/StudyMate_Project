@@ -28,6 +28,9 @@ const StudyPage = () => {
     { role: "ai", text: "Hello! How can I assist you today?" },
   ]);
 
+  const [isTyping, setIsTyping] = useState(false);
+
+
   const playerRef = useRef(null);
   const chatEndRef = useRef(null);
 
@@ -118,25 +121,26 @@ const StudyPage = () => {
 
   
   const handleSendMessage = async () => {
-    if (prompt.trim() === "") return;
+  if (prompt.trim() === "") return;
 
-    const userMessage = { role: "user", text: prompt };
-    const updatedMessages = [...chatMessages, userMessage];
+  const userMessage = { role: "user", text: prompt };
+  const updatedMessages = [...chatMessages, userMessage];
+  setChatMessages(updatedMessages);
+  setprompt("");
+  setIsTyping(true);
 
-    setChatMessages(updatedMessages);
-    // localStorage.setItem("chatHistory", JSON.stringify(updatedMessages));
-    setprompt("");
+  // Add a temporary "Typing..." message
+  const tempMessages = [...updatedMessages, { role: "ai", text: "Typing..." }];
+  setChatMessages(tempMessages);
 
-    const GroqResponse = await getSummary();
+  const GroqResponse = await getSummary();
 
-    setTimeout(() => {
-      const aiResponse = { role: "ai", text: GroqResponse };
-      const newChat = [...updatedMessages, aiResponse];
-
-      setChatMessages(newChat);
-      localStorage.setItem("chatHistory", JSON.stringify(newChat));
-    }, 100);
-  };
+  // Replace the "Typing..." with actual response
+  const finalMessages = [...updatedMessages, { role: "ai", text: GroqResponse }];
+  setChatMessages(finalMessages);
+  setIsTyping(false);
+  localStorage.setItem("chatHistory", JSON.stringify(finalMessages));
+};
 
   
 
@@ -232,7 +236,7 @@ const StudyPage = () => {
               </div>
 
               {videoload ? (
-                <>
+              
                   <YouTube
                 className="rounded-lg"
                 videoId={currentStudy?.v_code}
@@ -243,7 +247,7 @@ const StudyPage = () => {
                   playerVars: { autoplay: 0 },
                 }}
               />
-                </>
+               
               ) : (
                 <div className=" dark:bg-gray-800 md:rounded-lg h-[350px] p-6 shadow-lg flex items-center justify-center">
                   <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
@@ -292,9 +296,9 @@ const StudyPage = () => {
               >
                 Save
               </button>
-              <button className="px-4 py-2 w-1/4 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition">
+              {/* <button className="px-4 py-2 w-1/4 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition">
                 Export Notes
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -327,7 +331,8 @@ const StudyPage = () => {
                   <Copy className="hover:scale-95" size={15} />
                 </div>
 
-                <p>{msg.text}</p>
+                <p>{msg.text === "Typing..." ? <em>{msg.text}</em> : msg.text}</p>
+
               </div>
             ))}
             <div ref={chatEndRef} />

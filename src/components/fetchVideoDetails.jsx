@@ -92,10 +92,23 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-[var(--foreground)] rounded-md max-w-md w-full p-6">
+      <div className="relative bg-[var(--foreground)] rounded-md max-w-md w-full p-6">
+
+
+        <div 
+        onClick={() =>  setOpen(false)}
+        className="cursor-pointer scale-95 transition-all w-fit absolute right-2 top-4">
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e7dfdf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </div>
+
+
         <div className="mb-4">
-          <h2 className="text-lg font-bold text-[var(--primary-color)]">Share Video</h2>
-          <p className="text-sm text-white">Fill in the details and save the video info.</p>
+          <h2 className="text-lg font-bold text-[var(--primary-color)]">
+            Share Video
+          </h2>
+          <p className="text-sm text-white">
+            Fill in the details and save the video info.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -122,7 +135,9 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
           {videoFetched && (
             <>
               <div className="grid gap-1">
-                <label htmlFor="title" className="text-sm text-white">Name</label>
+                <label htmlFor="title" className="text-sm text-white">
+                  Name
+                </label>
                 <input
                   id="title"
                   name="title"
@@ -135,7 +150,9 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
               </div>
 
               <div className="grid gap-1">
-                <label htmlFor="container" className="text-sm text-white">Study Containers</label>
+                <label htmlFor="container" className="text-sm text-white">
+                  Study Containers
+                </label>
                 <select
                   name="container"
                   value={formData.container}
@@ -152,7 +169,9 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
                   required={!creatingNewContainer}
                   className="p-2 rounded bg-gray-800 text-white"
                 >
-                  <option value="" disabled>Choose Study Container</option>
+                  <option value="" disabled>
+                    Choose Study Container
+                  </option>
                   {containers.map((container, index) => (
                     <option key={index} value={container.name}>
                       {container.name}
@@ -177,7 +196,9 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
               )}
 
               <div className="grid gap-1">
-                <label htmlFor="description" className="text-sm text-white">Quick Notes</label>
+                <label htmlFor="description" className="text-sm text-white">
+                  Quick Notes
+                </label>
                 <textarea
                   id="description"
                   name="description"
@@ -200,11 +221,9 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
           )}
         </form>
 
-        {loading && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-gray-800 p-6 rounded shadow-lg">
-              <div className="w-12 h-12 border-t-4 border-b-4 border-[var(--primary-color)] rounded-full animate-spin"></div>
-            </div>
+     {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm rounded-md">
+            <div className="w-12 h-12 border-t-4 border-b-4 border-[var(--primary-color)] rounded-full animate-spin"></div>
           </div>
         )}
       </div>
