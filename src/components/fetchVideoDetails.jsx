@@ -38,6 +38,7 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
       const response = await fetch(
         `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoID}&format=json`
       );
+
       if (!response.ok) throw new Error("Failed to fetch video data");
 
       const data = await response.json();
@@ -106,7 +107,7 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
               value={formData.url}
               onChange={handleChange}
               required
-              className="flex-1 px-3 py-2 rounded bg-[var(--input)] text-white"
+              className="flex-1 p-2 rounded bg-gray-800 text-white"
             />
             <button
               type="button"
@@ -116,25 +117,27 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
               Fetch Video
             </button>
           </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
           {videoFetched && (
             <>
               <div className="grid gap-1">
-                <label className="text-sm text-white">Name</label>
+                <label htmlFor="title" className="text-sm text-white">Name</label>
                 <input
+                  id="title"
                   name="title"
                   type="text"
                   value={formData.title}
                   onChange={handleChange}
                   required
-                  className="px-3 py-2 rounded bg-[var(--input)] text-white"
+                  className="p-2 rounded bg-gray-800 text-white"
                 />
               </div>
 
               <div className="grid gap-1">
-                <label className="text-sm text-white">Study Containers</label>
+                <label htmlFor="container" className="text-sm text-white">Study Containers</label>
                 <select
+                  name="container"
                   value={formData.container}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -147,7 +150,7 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
                     }
                   }}
                   required={!creatingNewContainer}
-                  className="px-3 py-2 rounded bg-[var(--input)] text-white"
+                  className="p-2 rounded bg-gray-800 text-white"
                 >
                   <option value="" disabled>Choose Study Container</option>
                   {containers.map((container, index) => (
@@ -155,7 +158,9 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
                       {container.name}
                     </option>
                   ))}
-                  <option value="new">+ Create New Container</option>
+                  <option value="new" className="text-blue-500">
+                    + Create New Container
+                  </option>
                 </select>
               </div>
 
@@ -166,19 +171,20 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
                     placeholder="Enter container name..."
                     value={newContainerName}
                     onChange={(e) => setNewContainerName(e.target.value)}
-                    className="w-full px-3 py-2 rounded bg-[var(--input)] text-white"
+                    className="w-full p-2 rounded bg-gray-800 text-white"
                   />
                 </div>
               )}
 
               <div className="grid gap-1">
-                <label className="text-sm text-white">Quick Notes</label>
+                <label htmlFor="description" className="text-sm text-white">Quick Notes</label>
                 <textarea
+                  id="description"
                   name="description"
+                  placeholder="Any additional notes..."
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Any additional notes..."
-                  className="px-3 py-2 rounded bg-[var(--input)] text-white"
+                  className="p-2 rounded bg-gray-800 text-white"
                 />
               </div>
 
@@ -196,7 +202,7 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
 
         {loading && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-[var(--input)] p-6 rounded shadow-lg">
+            <div className="bg-gray-800 p-6 rounded shadow-lg">
               <div className="w-12 h-12 border-t-4 border-b-4 border-[var(--primary-color)] rounded-full animate-spin"></div>
             </div>
           </div>
