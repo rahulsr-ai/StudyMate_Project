@@ -1,31 +1,12 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { CreateNewContainerAndAddData } from "@/utils/ApiCalls";
 import { useEffect, useState } from "react";
+import { CreateNewContainerAndAddData } from "@/utils/ApiCalls";
 
 export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
   const [creatingNewContainer, setCreatingNewContainer] = useState(false);
   const [newContainerName, setNewContainerName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [videoFetched, setVideoFetched] = useState(false);
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     url: "",
@@ -36,9 +17,6 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
     videoID: "",
     html: "",
   });
-
-  const [videoFetched, setVideoFetched] = useState(false);
-  const [error, setError] = useState("");
 
   const extractVideoID = (url) => {
     const match = url.match(
@@ -110,129 +88,126 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
     setOpen(false);
   };
 
-
+  if (!open) return null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md bg-[var(--foreground)] border-none rounded-md ">
-        <DialogHeader>
-          <DialogTitle className={"text-[var(--primary-color)]"}>Share Video</DialogTitle>
-          <DialogDescription>
-            Fill in the details and save the video info.
-          </DialogDescription>
-        </DialogHeader>
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+      <div className="bg-[var(--foreground)] rounded-md max-w-md w-full p-6">
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-[var(--primary-color)]">Share Video</h2>
+          <p className="text-sm text-white">Fill in the details and save the video info.</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <div className="flex gap-2">
-            <Input
-              id="url"
+            <input
               name="url"
+              type="url"
               placeholder="Paste the YouTube URL..."
-              value={formData?.url || ""}
+              value={formData.url}
               onChange={handleChange}
               required
-              className={"text-white dark:text-black"}
+              className="flex-1 p-2 rounded bg-gray-800 text-white"
             />
-            <Button onClick={fetchVideoDetails} type="button" className={"hover:bg-[var(--primary-color-hover)] bg-[var(--primary-color)]"}>
+            <button
+              type="button"
+              onClick={fetchVideoDetails}
+              className="px-4 py-2 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white rounded"
+            >
               Fetch Video
-            </Button>
+            </button>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           {videoFetched && (
             <>
-              <div className="grid gap-2">
-                <Label htmlFor="title">Name</Label>
-                <Input
+              <div className="grid gap-1">
+                <label htmlFor="title" className="text-sm text-white">Name</label>
+                <input
                   id="title"
                   name="title"
-                  placeholder="Enter video title..."
+                  type="text"
                   value={formData.title}
                   onChange={handleChange}
                   required
-                 className={"text-white"}
+                  className="p-2 rounded bg-gray-800 text-white"
                 />
               </div>
 
-              <div className="grid gap-2">
-                <Label>Study Containers</Label>
-                <Select
-                  value={formData.container || ""}
-                  onValueChange={(value) => {
-                    if (value === "new") {
+              <div className="grid gap-1">
+                <label htmlFor="container" className="text-sm text-white">Study Containers</label>
+                <select
+                  name="container"
+                  value={formData.container}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "new") {
                       setCreatingNewContainer(true);
                       setFormData({ ...formData, container: "" });
                     } else {
                       setCreatingNewContainer(false);
-                      setFormData({ ...formData, container: value });
+                      setFormData({ ...formData, container: val });
                     }
                   }}
+                  required={!creatingNewContainer}
+                  className="p-2 rounded bg-gray-800 text-white"
                 >
-                  <SelectTrigger className="w-full text-white">
-                    <SelectValue placeholder="Choose Study Container"/>
-                  </SelectTrigger>
-                  <SelectContent className="max-h-52 overflow-y-auto">
-                    <SelectGroup>
-                      <SelectLabel>Containers</SelectLabel>
-                      {containers.map((container, index) => (
-                        <SelectItem key={index} value={container?.name}>
-                          {container?.name}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="new" className="text-blue-500">
-                        + Create New Container
-                      </SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-
-                {creatingNewContainer && (
-                  <div className="flex gap-2 mt-2">
-                    <Input
-                      id="new-container"
-                      placeholder="Enter container name..."
-                      value={newContainerName}
-                      onChange={(e) => setNewContainerName(e.target.value)}
-                      className={"text-white"}
-                    />
-                  </div>
-                )}
+                  <option value="" disabled>Choose Study Container</option>
+                  {containers.map((container, index) => (
+                    <option key={index} value={container.name}>
+                      {container.name}
+                    </option>
+                  ))}
+                  <option value="new" className="text-blue-500">
+                    + Create New Container
+                  </option>
+                </select>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="description">Quick Notes</Label>
-                <Textarea
+              {creatingNewContainer && (
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    placeholder="Enter container name..."
+                    value={newContainerName}
+                    onChange={(e) => setNewContainerName(e.target.value)}
+                    className="w-full p-2 rounded bg-gray-800 text-white"
+                  />
+                </div>
+              )}
+
+              <div className="grid gap-1">
+                <label htmlFor="description" className="text-sm text-white">Quick Notes</label>
+                <textarea
                   id="description"
                   name="description"
                   placeholder="Any additional notes..."
                   value={formData.description}
                   onChange={handleChange}
-                  className={"text-white"}
+                  className="p-2 rounded bg-gray-800 text-white"
                 />
               </div>
 
-              <DialogFooter className="mt-4">
-                <Button type="submit" className="px-4 hover:bg-[var(--primary-color-hover)] bg-[var(--primary-color)]">
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white rounded"
+                >
                   Save
-                </Button>
-              </DialogFooter>
+                </button>
+              </div>
             </>
           )}
-        
-
-
-          { loading && 
-           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-                <div className=" dark:bg-gray-800 md:rounded-lg p-6 shadow-lg flex items-center justify-center">
-                  {/* Spinner */}
-                  <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
-                </div>
-              </div>
-          }
-
-
         </form>
-      </DialogContent>
-    </Dialog>
+
+        {loading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-gray-800 p-6 rounded shadow-lg">
+              <div className="w-12 h-12 border-t-4 border-b-4 border-[var(--primary-color)] rounded-full animate-spin"></div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
