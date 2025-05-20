@@ -19,11 +19,30 @@ export function UTubeVideoModel({ open, setOpen, userDetails, containers }) {
   });
 
   const extractVideoID = (url) => {
-    const match = url.match(
-      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
-    );
-    return match ? match[1] : null;
-  };
+  try {
+    const parsedUrl = new URL(url);
+    let videoID = null;
+
+    if (parsedUrl.hostname.includes("youtu.be")) {
+      // Short link like https://youtu.be/VIDEO_ID
+      videoID = parsedUrl.pathname.split("/")[1];
+    } else if (parsedUrl.hostname.includes("youtube.com")) {
+      if (parsedUrl.pathname === "/watch") {
+        videoID = parsedUrl.searchParams.get("v");
+      } else if (parsedUrl.pathname.startsWith("/embed/") || parsedUrl.pathname.startsWith("/v/")) {
+        videoID = parsedUrl.pathname.split("/")[2];
+      } else if (parsedUrl.pathname.startsWith("/shorts/")) {
+        videoID = parsedUrl.pathname.split("/")[2] || parsedUrl.pathname.split("/")[1];
+      }
+    }
+
+    if (videoID && videoID.length === 11) return videoID;
+    return null;
+  } catch {
+    return null;
+  }
+};
+;
 
   const fetchVideoDetails = async () => {
     setError("");
