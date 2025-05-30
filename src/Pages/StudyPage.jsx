@@ -83,9 +83,7 @@ const StudyPage = () => {
     if (!(containerId && id && notes && url)) {
       alert("Please provide all the required parameters");
       return;
-    }
-
-    let updatedItem = null;
+    };
 
     if (
       url.includes("https://jtxvaqctajkhgkjekams.supabase.co/storage/v1/object")
@@ -206,7 +204,7 @@ const StudyPage = () => {
               onClick={() => {
                 window.history.back();
               }}
-              className="text-xl bg-zinc-950 p-2 rounded-full"
+              className="text-xl bg-zinc-950 p-2 rounded-full lg:block hidden"
             >
               <IoMdArrowRoundBack />
             </button>

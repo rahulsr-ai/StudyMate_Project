@@ -2,15 +2,26 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, } from "react-router-dom";
 import supabase from "@/utils/Supabase";
 
-export const FloatingNav = ({ navItems, user }) => {
+export const FloatingNav = ({ navItems, user, pathname }) => {
   const [visible, setVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   // const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
+
+  
+  
+  
+  
+
+
+console.log("Nav link:", navItems[0].link);
+
+
+
 
   const logOut = async () => {
     localStorage.removeItem("sb-jtxvaqctajkhgkjekams-auth-token");
@@ -26,7 +37,6 @@ export const FloatingNav = ({ navItems, user }) => {
 
   
   useEffect(() => {
-
 
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 768); // Mobile if width < 768px
@@ -52,6 +62,7 @@ export const FloatingNav = ({ navItems, user }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isMobile]);
 
+
   return (
     <AnimatePresence mode="wait">
       {visible && (
@@ -61,7 +72,7 @@ export const FloatingNav = ({ navItems, user }) => {
           transition={{ duration: 0.3 }}
           className={`fixed ${
             isMobile
-              ? "bottom-0 left-1/2 -translate-x-1/2  py-1 w-full"
+              ? "bottom-0 left-1/2 -translate-x-1/2  py-1 w-full border-b-2 border-blue-500"
               : "top-0 inset-x-0 mx-auto max-w-fit rounded-full p-2 border border-neutral-300 dark:border-white/[0.2]"
           } 
             dark:bg-black bg-black shadow-lg z-[5000] 
@@ -71,12 +82,12 @@ export const FloatingNav = ({ navItems, user }) => {
             <Link
               key={`link-${idx}`}
               to={navItem.link}
-              className="relative dark:text-neutral-50 flex items-center space-x-1 
-                 dark:hover:text-neutral-300 hover:text-neutral-300 px-4 py-2
-                text-white"
+              className={`relative dark:text-neutral-50 flex items-center space-x-1 
+                 dark:hover:text-neutral-300 hover:text-neutral-300 px-4 py-2  
+                text-white ${pathname === navItem.link ? "bg-zinc-900 rounded-xl" : ""} `}
             >
               <span className="block sm:hidden">{navItem.icon}</span>
-              <span className="hidden sm:block text-sm">{navItem.name}</span>
+              <span className={`hidden sm:block text-sm `}>{navItem.name}</span>
             </Link>
           ))}
 
@@ -90,7 +101,7 @@ export const FloatingNav = ({ navItems, user }) => {
               <span>Login</span>
               <span
                 className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r 
-        from-transparent via-blue-500 to-transparent h-px"
+        from-transparent via-blue-500 to-transparent h-px "
               />
             </Link>
           ) : (

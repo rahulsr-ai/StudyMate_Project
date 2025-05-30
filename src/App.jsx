@@ -48,6 +48,7 @@ const App = () => {
     "/about",
   ];
 
+  
   // Get user on load
   useEffect(() => {
     const fetchUser = async () => {
@@ -75,7 +76,7 @@ const App = () => {
   return (
     <main>
       <header>
-        {shouldShowNavbar && <FloatingNav navItems={navItems} user={user} />}
+        {shouldShowNavbar && <FloatingNav navItems={navItems} user={user} pathname={location.pathname} />}
       </header>
 
       <Routes>
