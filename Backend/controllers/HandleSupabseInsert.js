@@ -43,10 +43,11 @@ export const getUserContainersData = async (req, res) => {
     if (error) {
       console.error("Error fetching data:", error);
       return res.status(500).json({ error: error.message });
-    } else {
-      console.log("Fetched Data:", data);
-      return res.status(200).json(data);
     }
+
+    console.log("Fetched Data:", data);
+    return res.status(200).json(data);
+    
   } catch (error) {
     console.log("error in getUserContainersData ", error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -90,12 +91,10 @@ export const CreateNewContainerAndAddData = async (req, res) => {
         .single();
 
       if (insertError) {
-        return res
-          .status(500)
-          .json({
-            error: "Failed to create new container",
-            message: insertError.message,
-          });
+        return res.status(500).json({
+          error: "Failed to create new container",
+          message: insertError.message,
+        });
       }
 
       console.log("New container created:", newContainer);
@@ -119,12 +118,10 @@ export const CreateNewContainerAndAddData = async (req, res) => {
       .select("*");
 
     if (videoError) {
-      return res
-        .status(500)
-        .json({
-          error: "Failed to insert video data",
-          message: videoError.message,
-        });
+      return res.status(500).json({
+        error: "Failed to insert video data",
+        message: videoError.message,
+      });
     }
 
     console.log("Video data inserted successfully:", videos);
@@ -162,12 +159,10 @@ export const CreateNewContainerAndAddData = async (req, res) => {
             "Error saving transcript:",
             insertTranscriptError.message
           );
-          return res
-            .status(500)
-            .json({
-              error: "Failed to fetch transcript",
-              message: insertTranscriptError.message,
-            });
+          return res.status(500).json({
+            error: "Failed to fetch transcript",
+            message: insertTranscriptError.message,
+          });
         } else {
           console.log("Transcript saved successfully!");
         }
