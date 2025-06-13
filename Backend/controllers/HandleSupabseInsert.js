@@ -47,12 +47,13 @@ export const getUserContainersData = async (req, res) => {
 
     console.log("Fetched Data:", data);
     return res.status(200).json(data);
-    
+
   } catch (error) {
     console.log("error in getUserContainersData ", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 // Handling Youtube video uploads and saving the url to the table
 export const CreateNewContainerAndAddData = async (req, res) => {
