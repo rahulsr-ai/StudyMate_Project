@@ -1,9 +1,13 @@
 import axios from "axios";
 
 // if HandleAi.js is in /Backend/controllers and supabase.js is in /Backend/db
-import supabase from '../db/supabase.js';
+import supabase from "../db/supabase.js";
 import { YoutubeTranscript } from "youtube-transcript";
+import { GoogleGenAI } from "@google/genai";
 
+const geminiKey = process.env.VITE_GEMINIAPI_KEY;
+
+const ai = new GoogleGenAI({ apiKey: geminiKey });
 
 export const getVideosSummary = async (req, res) => {
   console.log("hello summary ");
@@ -37,22 +41,19 @@ export const getVideosSummary = async (req, res) => {
   }
 };
 
-
-
-
-export const AiResponse =   async (req, res) => {
+export const AiResponse = async (req, res) => {
   const { prompt, transcript } = req.body;
   console.log("hello prompt", prompt);
   console.log("this is our transcript version ", transcript);
 
   const options = {
-    method: 'POST',
-  url: 'https://chatgpt4o-ai-chatbot.p.rapidapi.com/chat2.php',
-  headers: {
-    'x-rapidapi-key': '1e13475c38msh63bfa16c48dfad2p11e85bjsnb30f82da05d2',
-    'x-rapidapi-host': 'chatgpt4o-ai-chatbot.p.rapidapi.com',
-    'Content-Type': 'application/json'
-  },
+    method: "POST",
+    url: "https://chatgpt4o-ai-chatbot.p.rapidapi.com/chat2.php",
+    headers: {
+      "x-rapidapi-key": "1e13475c38msh63bfa16c48dfad2p11e85bjsnb30f82da05d2",
+      "x-rapidapi-host": "chatgpt4o-ai-chatbot.p.rapidapi.com",
+      "Content-Type": "application/json",
+    },
     data: {
       messages: [
         {
@@ -78,11 +79,15 @@ export const AiResponse =   async (req, res) => {
     console.error(error);
     return res.status(500).json({ error: "Failed to fetch prompt" });
   }
-}
+};
 
 
 
-export const groqAIResponse = async (req, res) => {
+
+
+
+
+export const geminiAIresponse = async (req, res) => {
   const { videoId, prompt } = req.body;
 
   if (!prompt) {
@@ -92,7 +97,7 @@ export const groqAIResponse = async (req, res) => {
   let transcript = "";
 
   try {
-    // Step 1: If videoId exists, try to fetch transcript
+     // Step 1: If videoId exists, try to fetch transcript
     if (videoId) {
       const { data: transcriptData, error: transcriptError } = await supabase
         .from('transcripts')
@@ -114,48 +119,37 @@ export const groqAIResponse = async (req, res) => {
       transcript = `You are a helpful assistant. First, always respond directly to the user's message.`;
     }
 
-    // Step 2: Call Groq API
-    const response = await axios.post(
-      'https://api.groq.com/openai/v1/chat/completions',
+
+
+    // Step 2: Construct messages with valid part objects
+    const messages = [
       {
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
-        messages: [
-          {
-            role: "system",
-            content: `You are a helpful assistant. First, always respond directly to the user's message.`
-          },
-          ...(videoId
-            ? [{
-                role: "user",
-                content: `This is the transcript of the video for reference:\n\n${transcript}`
-              },
-              {
-                role: "assistant",
-                content: "Thanks for the transcript! Let me know if you have any questions about it."
-              }]
-            : []
-          ),
-          {
-            role: "user",
-            content: prompt
-          }
+        role: "user",
+        parts: [
+          { text: "You are a helpful assistant. Always respond directly to the user's message." },
+          ...(videoId ? [{ text: `This is the transcript of the video for reference:\n\n${transcript}` }] : [])
         ],
-        temperature: 0.7
       },
       {
-        headers: {
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-          'Content-Type': 'application/json',
-        }
-      }
-    );
+        role: "user",
+        parts: [{ text: prompt }],
+      },
+    ];
 
-    const reply = response.data.choices[0].message.content;
+    // Step 3: Send request to Gemini
+    const result = await ai.models.generateContent({
+      model: "gemini-2.0-flash-001",
+      contents: messages,
+    });
+
+    const reply = result.text
+    console.log("Gemini Reply:", reply);
+
     return res.status(200).json({ prompt, reply });
 
   } catch (error) {
-    console.error("Groq API Error:", error.response?.data || error.message);
-    return res.status(500).json({ error: "Groq API failed" });
+    console.error("Gemini API error:", error);
+    return res.status(500).json({ error: "Gemini API error" });
   }
 };
 

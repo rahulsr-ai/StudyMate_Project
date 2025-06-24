@@ -5,9 +5,7 @@ import axios from "axios";
 export const getUserContainersData = async (userId) => {
  
   try { 
-     const data = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user/containers/Data/${userId}`) 
-     console.log('here is your frontend log ' , data);
-     
+     const data = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user/containers/Data/${userId}`)    
      return data
   } catch (error) {
     console.log('frontend error while fetching user containers ', error);

@@ -79,6 +79,8 @@ const StudyPage = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
+
+
   const editNotes = async (id, notes, url) => {
     if (!(containerId && id && notes && url)) {
       alert("Please provide all the required parameters");
@@ -150,6 +152,8 @@ const StudyPage = () => {
       .padStart(2, "0")}`;
   };
 
+
+  
   const onPlayerReady = (event) => {
     playerRef.current = event.target;
     if (currentStudy?.watchtime_progress) {
