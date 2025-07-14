@@ -221,7 +221,7 @@ const StudyPage = () => {
           {/* Video or iframe */}
           {currentStudy?.v_title ? (
             <>
-              <div className="my-2">
+              {/* <div className="my-2">
                 <div className="w-full bg-gray-900 h-2 rounded-full">
                   <div
                     className="bg-green-500 h-full rounded-full transition-all duration-300"
@@ -235,7 +235,7 @@ const StudyPage = () => {
                 <p className="text-sm text-gray-400 mt-2">
                   ⏱ Watched: {formatTime(currentTime)} / {formatTime(duration)}
                 </p>
-              </div>
+              </div> */}
 
               {videoload ? (
               
