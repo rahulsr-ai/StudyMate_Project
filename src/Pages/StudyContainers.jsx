@@ -281,29 +281,30 @@ const StudyContainers = () => {
         </motion.h2>
 
         <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-6 ">
-          {loading
-            ? [...Array(2)].map((_, i) => <SkeletonCard key={i} />)
-            : containers.map((container, index) => (
-                <VideoGrid
-                  key={index}
-                  title={container.name}
-                  container={container}
-                  showDeleteDialog={showDeleteDialog}
-                  setShowDeleteDialog={setShowDeleteDialog}
-                  getUser={getUser}
-                  items={[...container.study_box, ...container.pdf_files]}
-                />
-              ))}
+          {loading ? (
+            [...Array(2)].map((_, i) => <SkeletonCard key={i} />)
+          ) : containers.length > 0 ? (
+            containers.map((container, index) => (
+              <VideoGrid
+                key={index}
+                title={container.name}
+                container={container}
+                showDeleteDialog={showDeleteDialog}
+                setShowDeleteDialog={setShowDeleteDialog}
+                getUser={getUser}
+                items={[...container.study_box, ...container.pdf_files]}
+              />
+            ))
+          ) : (
+            <motion.h2
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl font-bold mb-8 bg-[var(--secondary-color)] bg-clip-text text-transparent flex items-center gap-4"
+            >
+              Oops you dont have any study box
+            </motion.h2>
+          )}
         </motion.div>
-        {containers.length === 0 && (
-          <motion.h2
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold mb-8 bg-[var(--secondary-color)] bg-clip-text text-transparent flex items-center gap-4"
-          >
-            Oops you dont have any study box
-          </motion.h2>
-        )}
       </div>
     </motion.div>
   );
