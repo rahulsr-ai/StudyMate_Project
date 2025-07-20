@@ -137,7 +137,7 @@ function Login() {
               </label>
               <Link
                 to="/forget-password"
-                className="text-sm text-[var(--primary-color)] hover:text-[var(--primary-color)]"
+                className="text-sm text-blue-500 font-medium" 
               >
                 Forgot password?
               </Link>
@@ -165,7 +165,7 @@ function Login() {
 
           <p className="mt-8 text-center text-zinc-400">
             Don't have an account?{" "}
-            <Link to="/sign-up" className="text-[var(--primary-color)] hover:text-[var(--primary-color)]">
+            <Link to="/sign-up" className="text-blue-500 font-medium">
               Register here
             </Link>
           </p>

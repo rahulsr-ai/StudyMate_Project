@@ -116,7 +116,7 @@ function SignUp() {
 
           <p className="mt-8 text-center text-zinc-400">
             Already have an account?{" "}
-            <Link to="/login" className="text-[var(--primary-color)] hover:text-[var(--primary-color)]">
+            <Link to="/login" className="text-blue-500 font-medium">
               Sign in here
             </Link>
           </p>
