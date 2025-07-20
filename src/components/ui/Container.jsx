@@ -148,9 +148,7 @@ function Sets() {
                   <h2 className="text-4xl font-bold mb-6 bg-[var(--primary-color)] bg-clip-text text-transparent">
                     {container?.name || "Container"}
                   </h2>
-                  <p className="text-lg max-w-xl lg:max-w-lg leading-relaxed tracking-tight text-left text-gray-400">
-                    Managing a small business today is already tough.
-                  </p>
+                  
                 </>
               )}
             </div>
