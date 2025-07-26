@@ -82,11 +82,6 @@ export const AiResponse = async (req, res) => {
 };
 
 
-
-
-
-
-
 export const geminiAIresponse = async (req, res) => {
   const { videoId, prompt } = req.body;
 
@@ -97,59 +92,94 @@ export const geminiAIresponse = async (req, res) => {
   let transcript = "";
 
   try {
-     // Step 1: If videoId exists, try to fetch transcript
     if (videoId) {
       const { data: transcriptData, error: transcriptError } = await supabase
-        .from('transcripts')
-        .select('text')
-        .eq('video_id', videoId)
+        .from("transcripts")
+        .select("text")
+        .eq("video_id", videoId)
         .single();
 
       if (transcriptError) {
         console.warn("Transcript not found or fetch error:", transcriptError.message);
       }
 
-      if (transcriptData?.text) {
-        transcript = transcriptData.text;
-      } else {
-        transcript = `No transcript available for this video. Proceeding without context.`;
-      }
+      transcript = transcriptData?.text || `No transcript available for this video. Proceeding without context.`;
     } else {
-      // No videoId means it's probably a PDF or generic question
       transcript = `You are a helpful assistant. First, always respond directly to the user's message.`;
     }
 
-
-
-    // Step 2: Construct messages with valid part objects
     const messages = [
       {
         role: "user",
         parts: [
-          { text: "You are a helpful assistant. Always respond directly to the user's message." },
-          ...(videoId ? [{ text: `This is the transcript of the video for reference:\n\n${transcript}` }] : [])
+          {
+            text: `You are a helpful assistant. Respond in clear markdown format using short, bullet-point explanations. Do NOT write large paragraphs or code blocks unless explicitly asked.
+
+Use the following formatting:
+- Use **Markdown** for all responses.
+- Prefer numbered lists or bullet points for step-by-step or concept explanations.
+- Bold important terms using **double asterisks**.
+- For technical explanations, use code blocks (\`\`\`).
+- Avoid writing large paragraphs. Break things down into clear, short points.
+
+Example:
+1. **Definition**: NumPy is a core library for numerical computing.
+2. **Key Feature**: It provides fast N-dimensional arrays.
+3. **Use Case**: Ideal for data analysis, machine learning, etc.`,
+          },
+          ...(videoId
+            ? [{ text: `This is the transcript of the video for reference:\n\n${transcript}` }]
+            : []),
         ],
       },
       {
         role: "user",
-        parts: [{ text: prompt }],
+        parts: [
+          {
+            text: `${prompt}\n\nMake the response short but complete. Avoid long paragraphs.`,
+          },
+        ],
       },
     ];
 
-    // Step 3: Send request to Gemini
     const result = await ai.models.generateContent({
       model: "gemini-2.0-flash-001",
       contents: messages,
+      generationConfig: {
+        maxOutputTokens: 2048,
+        temperature: 0.7,
+        topK: 1,
+        topP: 1,
+      },
     });
 
-    const reply = result.text
+    let reply = result?.text || "";
+
+    if (!reply) {
+      return res.status(500).json({ error: "Empty response from Gemini" });
+    }
+
+    if (
+      reply.trim().endsWith(":") ||
+      reply.trim().endsWith("*") ||
+      reply.trim().endsWith("```")
+    ) {
+      const continueResult = await ai.models.generateContent({
+        model: "gemini-2.0-flash-001",
+        contents: [...messages, { role: "user", parts: [{ text: "continue" }] }],
+      });
+
+      reply += "\n" + continueResult?.text || "";
+    }
+
     console.log("Gemini Reply:", reply);
 
     return res.status(200).json({ prompt, reply });
-
   } catch (error) {
     console.error("Gemini API error:", error);
     return res.status(500).json({ error: "Gemini API error" });
   }
 };
+
+
 

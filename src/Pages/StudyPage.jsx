@@ -8,8 +8,7 @@ import supabase from "@/utils/Supabase";
 import { Copy } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoMdArrowRoundBack } from "react-icons/io";
-
-
+import ReactMarkdown from "react-markdown";
 
 const StudyPage = () => {
   const { id, containerId, type } = useParams();
@@ -30,13 +29,14 @@ const StudyPage = () => {
 
   const [isTyping, setIsTyping] = useState(false);
 
-
   const playerRef = useRef(null);
   const chatEndRef = useRef(null);
 
   const fetchData = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/container/${id}/${type}`);
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/container/${id}/${type}`
+      );
       if (data && data.length > 0) {
         console.log(data);
 
@@ -79,13 +79,11 @@ const StudyPage = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-
-
   const editNotes = async (id, notes, url) => {
     if (!(containerId && id && notes && url)) {
       alert("Please provide all the required parameters");
       return;
-    };
+    }
 
     if (
       url.includes("https://jtxvaqctajkhgkjekams.supabase.co/storage/v1/object")
@@ -119,30 +117,33 @@ const StudyPage = () => {
     }
   };
 
-  
   const handleSendMessage = async () => {
-  if (prompt.trim() === "") return;
+    if (prompt.trim() === "") return;
 
-  const userMessage = { role: "user", text: prompt };
-  const updatedMessages = [...chatMessages, userMessage];
-  setChatMessages(updatedMessages);
-  setprompt("");
-  setIsTyping(true);
+    const userMessage = { role: "user", text: prompt };
+    const updatedMessages = [...chatMessages, userMessage];
+    setChatMessages(updatedMessages);
+    setprompt("");
+    setIsTyping(true);
 
-  // Add a temporary "Typing..." message
-  const tempMessages = [...updatedMessages, { role: "ai", text: "Typing..." }];
-  setChatMessages(tempMessages);
+    // Add a temporary "Typing..." message
+    const tempMessages = [
+      ...updatedMessages,
+      { role: "ai", text: "Typing..." },
+    ];
+    setChatMessages(tempMessages);
 
-  const GroqResponse = await getSummary();
+    const GroqResponse = await getSummary();
 
-  // Replace the "Typing..." with actual response
-  const finalMessages = [...updatedMessages, { role: "ai", text: GroqResponse }];
-  setChatMessages(finalMessages);
-  setIsTyping(false);
-  localStorage.setItem("chatHistory", JSON.stringify(finalMessages));
-};
-
-  
+    // Replace the "Typing..." with actual response
+    const finalMessages = [
+      ...updatedMessages,
+      { role: "ai", text: GroqResponse },
+    ];
+    setChatMessages(finalMessages);
+    setIsTyping(false);
+    localStorage.setItem("chatHistory", JSON.stringify(finalMessages));
+  };
 
   const formatTime = (seconds) => {
     const min = Math.floor(seconds / 60);
@@ -152,8 +153,6 @@ const StudyPage = () => {
       .padStart(2, "0")}`;
   };
 
-
-  
   const onPlayerReady = (event) => {
     playerRef.current = event.target;
     if (currentStudy?.watchtime_progress) {
@@ -161,28 +160,29 @@ const StudyPage = () => {
     }
   };
 
-  
   const getSummary = async () => {
-
     if (!currentStudy?.v_code) {
-      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`, {
-        prompt: prompt,
-      });
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`,
+        {
+          prompt: prompt,
+        }
+      );
       console.log("response from groq from pdf ", data?.reply);
       return data?.reply;
     } else {
-     
-      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`, {
-        prompt: prompt,
-        videoId: currentStudy?.v_code
-      });
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`,
+        {
+          prompt: prompt,
+          videoId: currentStudy?.v_code,
+        }
+      );
 
       console.log("response from groq for video ", data?.reply);
 
       return data?.reply;
     }
-
-
   };
 
   return (
@@ -238,18 +238,16 @@ const StudyPage = () => {
               </div> */}
 
               {videoload ? (
-              
-                  <YouTube
-                className="rounded-lg"
-                videoId={currentStudy?.v_code}
-                onReady={onPlayerReady}
-                opts={{
-                  width: "100%",
-                  height: "350px",
-                  playerVars: { autoplay: 0 },
-                }}
-              />
-               
+                <YouTube
+                  className="rounded-lg"
+                  videoId={currentStudy?.v_code}
+                  onReady={onPlayerReady}
+                  opts={{
+                    width: "100%",
+                    height: "350px",
+                    playerVars: { autoplay: 0 },
+                  }}
+                />
               ) : (
                 <div className=" dark:bg-gray-800 md:rounded-lg h-[350px] p-6 shadow-lg flex items-center justify-center">
                   <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
@@ -333,8 +331,22 @@ const StudyPage = () => {
                   <Copy className="hover:scale-95" size={15} />
                 </div>
 
-                <p>{msg.text === "Typing..." ? <em>{msg.text}</em> : msg.text}</p>
-
+                {msg.text === "Typing..." ? (
+                  <em>{msg.text}</em>
+                ) : (
+                <div className="prose prose-sm prose-invert max-w-none text-white prose-p:leading-relaxed prose-li:my-1 prose-strong:text-white prose-pre:bg-zinc-900 prose-pre:text-sm prose-code:bg-zinc-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
+  <ReactMarkdown
+    components={{
+      li: ({ children }) => <li className="list-disc ml-4">{children}</li>,
+      strong: ({ children }) => <strong className="text-white">{children}</strong>,
+      code: ({ children }) => <code className="text-green-300">{children}</code>,
+      pre: ({ children }) => <pre className="overflow-x-auto p-2">{children}</pre>,
+    }}
+  >
+    {msg.text}
+  </ReactMarkdown>
+</div>
+                )}
               </div>
             ))}
             <div ref={chatEndRef} />
