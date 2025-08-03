@@ -5,9 +5,68 @@ import supabase from "../db/supabase.js";
 import { YoutubeTranscript } from "youtube-transcript";
 import { GoogleGenAI } from "@google/genai";
 
+
 const geminiKey = process.env.VITE_GEMINIAPI_KEY;
 
 const ai = new GoogleGenAI({ apiKey: geminiKey });
+
+
+const systemInstruction = `
+Your name is **Niko**. You are a calm, helpful, and concise AI assistant.
+
+You must always respond in **well-aligned Markdown format** with proper spacing and indentation. Follow these formatting rules:
+
+📌 **General Rules**
+- Use **Markdown** for all responses.
+- Always insert **one empty line between points** for better readability.
+- Use **bullet points** or **numbered lists** to explain step-by-step concepts.
+- Avoid big paragraphs — keep things clean, short, and aligned.
+- For technical answers, use proper **code blocks** (\`\`\`) with syntax highlighting if needed.
+
+📌 **Formatting Guidelines**
+- Bold key terms using **double asterisks**.
+- Separate sections using line breaks.
+- Use indentation and line spacing for neat alignment.
+- DO NOT cram responses — maintain visual gaps between blocks of text.
+
+📌 **Example**
+Here’s how your responses should look:
+
+1. **Definition**:  
+   NumPy is a core Python library for numerical computing.
+
+2. **Key Features**:  
+   - N-dimensional array support  
+   - Fast matrix operations  
+   - Useful for data science and ML
+
+3. **Installation**:  
+   \`\`\`bash
+   pip install numpy
+   \`\`\`
+
+Always write in this clean format. Avoid unnecessary words and always prioritize clarity.
+`;
+
+
+
+
+
+
+const chat = ai.chats.create({
+  model: "gemini-2.5-flash",
+  history: [
+    {
+      role: "user",
+      parts: [{ text: systemInstruction }],
+    },
+  ],
+});
+
+
+
+
+
 
 export const getVideosSummary = async (req, res) => {
   console.log("hello summary ");
@@ -82,6 +141,9 @@ export const AiResponse = async (req, res) => {
 };
 
 
+
+
+
 export const geminiAIresponse = async (req, res) => {
   const { videoId, prompt } = req.body;
 
@@ -89,97 +151,45 @@ export const geminiAIresponse = async (req, res) => {
     return res.status(400).json({ error: "Prompt is required" });
   }
 
-  let transcript = "";
-
   try {
-    if (videoId) {
+    // Optional: Add transcript only once at the beginning
+    if (videoId && chat.history.length <= 1) {
       const { data: transcriptData, error: transcriptError } = await supabase
         .from("transcripts")
         .select("text")
         .eq("video_id", videoId)
         .single();
 
-      if (transcriptError) {
-        console.warn("Transcript not found or fetch error:", transcriptError.message);
+      const transcript = transcriptData?.text || "";
+
+      if (transcript) {
+        await chat.sendMessage({
+          message: `Here is the transcript of the video:\n\n${transcript}`,
+        });
       }
-
-      transcript = transcriptData?.text || `No transcript available for this video. Proceeding without context.`;
-    } else {
-      transcript = `You are a helpful assistant. First, always respond directly to the user's message.`;
     }
 
-    const messages = [
-      {
-        role: "user",
-        parts: [
-          {
-            text: `You are a helpful assistant. Respond in clear markdown format using short, bullet-point explanations. Do NOT write large paragraphs or code blocks unless explicitly asked.
-
-Use the following formatting:
-- Use **Markdown** for all responses.
-- Prefer numbered lists or bullet points for step-by-step or concept explanations.
-- Bold important terms using **double asterisks**.
-- For technical explanations, use code blocks (\`\`\`).
-- Avoid writing large paragraphs. Break things down into clear, short points.
-
-Example:
-1. **Definition**: NumPy is a core library for numerical computing.
-2. **Key Feature**: It provides fast N-dimensional arrays.
-3. **Use Case**: Ideal for data analysis, machine learning, etc.`,
-          },
-          ...(videoId
-            ? [{ text: `This is the transcript of the video for reference:\n\n${transcript}` }]
-            : []),
-        ],
-      },
-      {
-        role: "user",
-        parts: [
-          {
-            text: `${prompt}\n\nMake the response short but complete. Avoid long paragraphs.`,
-          },
-        ],
-      },
-    ];
-
-    const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash-001",
-      contents: messages,
-      generationConfig: {
-        maxOutputTokens: 2048,
-        temperature: 0.7,
-        topK: 1,
-        topP: 1,
-      },
-    });
-
-    let reply = result?.text || "";
-
-    if (!reply) {
-      return res.status(500).json({ error: "Empty response from Gemini" });
-    }
+    const result = await chat.sendMessage({ message: prompt });
+    let reply = result.text;
 
     if (
       reply.trim().endsWith(":") ||
       reply.trim().endsWith("*") ||
       reply.trim().endsWith("```")
     ) {
-      const continueResult = await ai.models.generateContent({
-        model: "gemini-2.0-flash-001",
-        contents: [...messages, { role: "user", parts: [{ text: "continue" }] }],
-      });
-
-      reply += "\n" + continueResult?.text || "";
+      const continuation = await chat.sendMessage({ message: "continue" });
+      reply += "\n" + continuation.text;
     }
 
-    console.log("Gemini Reply:", reply);
-
+    console.log("Niko's Reply:", reply);
     return res.status(200).json({ prompt, reply });
   } catch (error) {
     console.error("Gemini API error:", error);
     return res.status(500).json({ error: "Gemini API error" });
   }
 };
+
+
 
 
 

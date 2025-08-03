@@ -117,6 +117,7 @@ const StudyPage = () => {
     }
   };
 
+
   const handleSendMessage = async () => {
     if (prompt.trim() === "") return;
 
@@ -144,6 +145,8 @@ const StudyPage = () => {
     setIsTyping(false);
     localStorage.setItem("chatHistory", JSON.stringify(finalMessages));
   };
+
+  
 
   const formatTime = (seconds) => {
     const min = Math.floor(seconds / 60);
