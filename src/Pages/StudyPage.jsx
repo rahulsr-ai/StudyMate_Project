@@ -146,7 +146,7 @@ const StudyPage = () => {
     localStorage.setItem("chatHistory", JSON.stringify(finalMessages));
   };
 
-  
+
 
   const formatTime = (seconds) => {
     const min = Math.floor(seconds / 60);
@@ -310,7 +310,7 @@ const StudyPage = () => {
         <div className="w-full h-full md:w-1/3 p-2 bg-zinc-900 border-t md:border-t-0 border-zinc-700 flex flex-col ">
           {/* Header */}
           <div className="bg-zinc-900 p-4 border-b border-zinc-700">
-            <h2 className="text-2xl font-semibold">AI Chat</h2>
+            <h2 className="font-bold  text-xl">CHAT WITH <span className="text-[var(--primary-color)] "> NIKO  </span> </h2>
           </div>
 
           {/* Chat Messages */}
