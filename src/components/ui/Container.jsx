@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import StudyDrawer from "../StudyDrawer";
 import supabase from "@/utils/Supabase";
 import { getUserLatestData } from "@/utils/ApiCalls";
 import { Trash2 } from "lucide-react";

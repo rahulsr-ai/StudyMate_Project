@@ -14,12 +14,6 @@ export const FloatingNav = ({ navItems, user, pathname }) => {
 
   
   
-  
-  
-
-
-console.log("Nav link:", navItems[0].link);
-
 
 
 

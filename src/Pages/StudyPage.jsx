@@ -13,15 +13,13 @@ import ReactMarkdown from "react-markdown";
 const StudyPage = () => {
   const { id, containerId, type } = useParams();
 
-  console.log(id, containerId, type);
+  console.log("StudyPage params:", id, containerId, type);
 
   const notify = () => toast.success("Copied to clipboard");
 
   const [prompt, setprompt] = useState(" ");
   const [videoload, setvideoload] = useState(false);
   const [currentStudy, setCurrentStudy] = useState(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([
     { role: "ai", text: "Hello! How can I assist you today?" },
@@ -38,13 +36,10 @@ const StudyPage = () => {
         `${import.meta.env.VITE_BACKEND_URL}/api/container/${id}/${type}`
       );
       if (data && data.length > 0) {
-        console.log(data);
-
         setMessage(data[0]?.notes);
         setCurrentStudy(data[0]);
-        setCurrentTime(data[0]?.watchtime_progress || 0);
-        setDuration(data[0]?.duration || 0);
-        await getSummary();
+        // await getContext();
+        console.log("Fetched study data:", data[0]);
       }
     } catch (error) {
       console.error("Error fetching study data:", error);
@@ -58,22 +53,6 @@ const StudyPage = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  useEffect(() => {
-    if (currentStudy?.v_title) {
-      const interval = setInterval(() => {
-        const player = playerRef.current;
-        if (player?.getCurrentTime && player?.getDuration) {
-          const current = player.getCurrentTime();
-          const total = player.getDuration();
-          setCurrentTime(current);
-          setDuration(total);
-        }
-      }, 1000); // Update every second
-
-      return () => clearInterval(interval);
-    }
-  }, [currentStudy?.v_title]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -117,7 +96,6 @@ const StudyPage = () => {
     }
   };
 
-
   const handleSendMessage = async () => {
     if (prompt.trim() === "") return;
 
@@ -134,7 +112,7 @@ const StudyPage = () => {
     ];
     setChatMessages(tempMessages);
 
-    const GroqResponse = await getSummary();
+    const GroqResponse = await getContext();
 
     // Replace the "Typing..." with actual response
     const finalMessages = [
@@ -146,43 +124,28 @@ const StudyPage = () => {
     localStorage.setItem("chatHistory", JSON.stringify(finalMessages));
   };
 
-
-
-  const formatTime = (seconds) => {
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min.toString().padStart(2, "0")}:${sec
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  const onPlayerReady = (event) => {
-    playerRef.current = event.target;
-    if (currentStudy?.watchtime_progress) {
-      playerRef.current.seekTo(currentStudy.watchtime_progress);
-    }
-  };
-
-  const getSummary = async () => {
+  const getContext = async () => {
     if (!currentStudy?.v_code) {
+      console.log("Fetching context for the pdf file");
       const { data } = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/gemini/chat`,
         {
           prompt: prompt,
+          id,
+          containerId,
+          type,
         }
       );
-      console.log("response from groq from pdf ", data?.reply);
       return data?.reply;
     } else {
+      console.log("Fetching context for video:", currentStudy?.v_code);
       const { data } = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/groq/chat`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/gemini/chat`,
         {
           prompt: prompt,
           videoId: currentStudy?.v_code,
         }
       );
-
-      console.log("response from groq for video ", data?.reply);
 
       return data?.reply;
     }
@@ -224,27 +187,10 @@ const StudyPage = () => {
           {/* Video or iframe */}
           {currentStudy?.v_title ? (
             <>
-              {/* <div className="my-2">
-                <div className="w-full bg-gray-900 h-2 rounded-full">
-                  <div
-                    className="bg-green-500 h-full rounded-full transition-all duration-300"
-                    style={{
-                      width: duration
-                        ? `${(currentTime / duration) * 100}%`
-                        : "0%",
-                    }}
-                  />
-                </div>
-                <p className="text-sm text-gray-400 mt-2">
-                  ⏱ Watched: {formatTime(currentTime)} / {formatTime(duration)}
-                </p>
-              </div> */}
-
               {videoload ? (
                 <YouTube
                   className="rounded-lg"
                   videoId={currentStudy?.v_code}
-                  onReady={onPlayerReady}
                   opts={{
                     width: "100%",
                     height: "350px",
@@ -260,15 +206,16 @@ const StudyPage = () => {
           ) : (
             <>
               {videoload ? (
-                <iframe
-                  src={currentStudy?.url}
-                  width="100%"
-                  height="370"
-                  className="rounded-lg border"
-                  title="Study Material"
-                  allowFullScreen
-                ></iframe>
+                <embed src={currentStudy?.url} width="100%" height="370" className="rounded-lg border" title="Study Material"  />
               ) : (
+                // <iframe
+                //   src={currentStudy?.url}
+                //   width="100%"
+                //   height="370"
+                //   className="rounded-lg border"
+                //   title="Study Material"
+                //   allowFullScreen
+                // ></iframe>
                 <div className="dark:bg-gray-800 md:rounded-lg h-[370px] p-6 shadow-lg flex items-center justify-center">
                   <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
                 </div>
@@ -310,7 +257,10 @@ const StudyPage = () => {
         <div className="w-full h-full md:w-1/3 p-2 bg-zinc-900 border-t md:border-t-0 border-zinc-700 flex flex-col ">
           {/* Header */}
           <div className="bg-zinc-900 p-4 border-b border-zinc-700">
-            <h2 className="font-bold  text-xl">CHAT WITH <span className="text-[var(--primary-color)] "> NIKO  </span> </h2>
+            <h2 className="font-bold  text-xl">
+              CHAT WITH{" "}
+              <span className="text-[var(--primary-color)] "> NIKO </span>{" "}
+            </h2>
           </div>
 
           {/* Chat Messages */}
@@ -337,18 +287,26 @@ const StudyPage = () => {
                 {msg.text === "Typing..." ? (
                   <em>{msg.text}</em>
                 ) : (
-                <div className="prose prose-sm prose-invert max-w-none text-white prose-p:leading-relaxed prose-li:my-1 prose-strong:text-white prose-pre:bg-zinc-900 prose-pre:text-sm prose-code:bg-zinc-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
-  <ReactMarkdown
-    components={{
-      li: ({ children }) => <li className="list-disc ml-4">{children}</li>,
-      strong: ({ children }) => <strong className="text-white">{children}</strong>,
-      code: ({ children }) => <code className="text-green-300">{children}</code>,
-      pre: ({ children }) => <pre className="overflow-x-auto p-2">{children}</pre>,
-    }}
-  >
-    {msg.text}
-  </ReactMarkdown>
-</div>
+                  <div className="prose prose-sm prose-invert max-w-none text-white prose-p:leading-relaxed prose-li:my-1 prose-strong:text-white prose-pre:bg-zinc-900 prose-pre:text-sm prose-code:bg-zinc-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
+                    <ReactMarkdown
+                      components={{
+                        li: ({ children }) => (
+                          <li className="list-disc ml-4">{children}</li>
+                        ),
+                        strong: ({ children }) => (
+                          <strong className="text-white">{children}</strong>
+                        ),
+                        code: ({ children }) => (
+                          <code className="text-green-300">{children}</code>
+                        ),
+                        pre: ({ children }) => (
+                          <pre className="overflow-x-auto p-2">{children}</pre>
+                        ),
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  </div>
                 )}
               </div>
             ))}

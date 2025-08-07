@@ -5,13 +5,11 @@ import supabase from "../db/supabase.js";
 import { YoutubeTranscript } from "youtube-transcript";
 import { GoogleGenAI } from "@google/genai";
 
-
 const geminiKey = process.env.VITE_GEMINIAPI_KEY;
 
 const ai = new GoogleGenAI({ apiKey: geminiKey });
 
-
-const systemInstruction = `
+const sys_instruction = `
 Your name is **Niko**. You are a calm, helpful, and concise AI assistant.
 
 You must always respond in **well-aligned Markdown format** with proper spacing and indentation. Follow these formatting rules:
@@ -48,25 +46,15 @@ Here’s how your responses should look:
 Always write in this clean format. Avoid unnecessary words and always prioritize clarity.
 `;
 
-
-
-
-
-
 const chat = ai.chats.create({
   model: "gemini-2.5-flash",
   history: [
     {
-      role: "user",
-      parts: [{ text: systemInstruction }],
+      role: "model",
+      parts: [{ text: sys_instruction }],
     },
   ],
 });
-
-
-
-
-
 
 export const getVideosSummary = async (req, res) => {
   console.log("hello summary ");
@@ -140,16 +128,14 @@ export const AiResponse = async (req, res) => {
   }
 };
 
-
-
-
-
 export const geminiAIresponse = async (req, res) => {
-  const { videoId, prompt } = req.body;
+  const { videoId, prompt, id, type } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: "Prompt is required" });
   }
+
+  let transcript = "";
 
   try {
     // Optional: Add transcript only once at the beginning
@@ -160,14 +146,32 @@ export const geminiAIresponse = async (req, res) => {
         .eq("video_id", videoId)
         .single();
 
-      const transcript = transcriptData?.text || "";
+      transcript = transcriptData?.text || "";
 
       if (transcript) {
         await chat.sendMessage({
-          message: `Here is the transcript of the video:\n\n${transcript}`,
+          message: `Here is the transcript of the video which user is watching :\n\n${transcript}`,
         });
       }
     }
+
+    if (type === "pdf") {
+      const { data: pdfData, error: pdfError } = await supabase
+        .from("pdf_files")
+        .select("extracted_chunks")
+        .eq("id", id);
+
+      const extractedChunks = pdfData?.[0]?.extracted_chunks || [];
+      if (extractedChunks.length > 0) {
+        await chat.sendMessage({
+          message: `Here are the extracted chunks from the PDF user is viewing :\n\n${extractedChunks.join(
+            "\n\n"
+          )}`,
+        });
+      }
+    }
+
+ 
 
     const result = await chat.sendMessage({ message: prompt });
     let reply = result.text;
@@ -188,8 +192,3 @@ export const geminiAIresponse = async (req, res) => {
     return res.status(500).json({ error: "Gemini API error" });
   }
 };
-
-
-
-
-

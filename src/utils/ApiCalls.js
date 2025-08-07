@@ -1,6 +1,14 @@
 import supabase from "./Supabase";
 import axios from "axios";
 
+
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?url';
+
+// Set the workerSrc to the loaded worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
+
 // Fetching user containers data
 export const getUserContainersData = async (userId) => {
  
@@ -66,92 +74,114 @@ export const getUserLatestData = async (containerId) => {
 }
 
 
-export const savePdfData = async (userId, formdata) => {
-   if(!formdata?.pdfFile || !userId) {
-    return alert("Please provide all the required parameters");
-   }
-   
-      const filePath = `pdfs/${Date.now()}-${formdata?.pdfFile.name}`; // Unique path
-  
-      // Uploading to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from("pdf-uploads")
-        .upload(filePath, formdata?.pdfFile, { upsert: true }); // upsert to update the file if it already exists
-  
-      if (error) {
-        console.error("Upload failed:", error);
-        return null;
-      }
-  
-      // Get the file URL to save on our table 
-      const { data: urlData } = supabase.storage
-        .from("pdf-uploads")
-        .getPublicUrl(filePath);
-  
-      const fileURL = urlData.publicUrl;
-      console.log("File URL:", fileURL);
-  
-      // Step 1: Check if the container already exists
-      let { data: existingContainer, error: selectError } = await supabase
-        .from("study_container")
-        .select("*")
-        .eq("name", formdata.container)
-        .eq("user_id", userId) // Ensure it's specific to the user
-        .single(); // Expecting only one row
-  
-      let containerId;
-  
-      if (selectError && selectError.code !== "PGRST116") {
-        console.error("Error checking container:", selectError.message);
-      }
-  
-      if (existingContainer) {
-        console.log("Container already exists:", existingContainer);
-        containerId = existingContainer.id; // Use existing container ID
-      } else {
-        // Step 2: If not found, create a new container
-        const { data: newContainer, error: insertError } = await supabase
-          .from("study_container")
-          .insert([{ user_id: userId, name: formdata.container }])
-          .select("*")
-          .single();
-  
-        if (insertError) {
-          console.error("Error inserting new container:", insertError.message);
-          return 
-        }
-  
-        console.log("New container created:", newContainer);
-        containerId = newContainer.id;
-      }
-    
-  
-     
-       
-      // Insert metadata into the database
-      const { data: dbData, error: dbError } = await supabase
-        .from("pdf_files")
-        .insert([
-          {    
-            container_id: containerId, // Link to study_box ID
-            name: formdata.pdfFile.name,
-            description: formdata.description,
-            title: formdata.title,
-            pdf_type: formdata.pdfFile.type,
-            url: fileURL,
-            size: formdata.pdfFile.size,
-          },
-        ]);
-  
-      if (dbError) {
-        console.error("Error inserting pdf data:", dbError.message);
-        return null;
-      }
-  
-      console.log("pdf data inserted successfully:", dbData);
-      return dbData
-        
+
+const extractPdfTextChunks = async (pdfFile, chunkSize = 1000) => {
+  const arrayBuffer = await pdfFile.arrayBuffer();
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+  const pdf = await loadingTask.promise;
+
+  let fullText = "";
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const strings = content.items.map((item) => item.str);
+    fullText += strings.join(" ") + " ";
   }
+
+  // ✅ Split into chunks
+  const chunks = [];
+  for (let i = 0; i < fullText.length; i += chunkSize) {
+    chunks.push(fullText.slice(i, i + chunkSize));
+  }
+
+  return chunks;
+};
+
+
+
+
+export const savePdfData = async (userId, formdata) => {
+  console.log('formdata just before making an api call', formdata);
+  console.log('userid just before making an api call', userId);
+  if (!formdata?.pdfFile || !userId) {
+    return alert("Please provide all the required parameters");
+  }
+
+  // ✅ Extract text chunks before upload
+  const extractedChunks = await extractPdfTextChunks(formdata.pdfFile);
+
+  const filePath = `pdfs/${Date.now()}-${formdata?.pdfFile.name}`;
+  const { data, error } = await supabase.storage
+    .from("pdf-uploads")
+    .upload(filePath, formdata?.pdfFile, { upsert: true });
+
+  if (error) {
+    console.error("Upload failed:", error);
+    return null;
+  }
+
+  const { data: urlData } = supabase.storage
+    .from("pdf-uploads")
+    .getPublicUrl(filePath);
+  const fileURL = urlData.publicUrl;
+
+  // ✅ Check/create container
+  let { data: existingContainer, error: selectError } = await supabase
+    .from("study_container")
+    .select("*")
+    .eq("name", formdata.container)
+    .eq("user_id", userId)
+    .single();
+
+  let containerId;
+  if (selectError && selectError.code !== "PGRST116") {
+    console.error("Error checking container:", selectError.message);
+  }
+
+  if (existingContainer) {
+    containerId = existingContainer.id;
+  } else {
+    const { data: newContainer, error: insertError } = await supabase
+      .from("study_container")
+      .insert([{ user_id: userId, name: formdata.container }])
+      .select("*")
+      .single();
+
+    if (insertError) {
+      console.error("Error inserting new container:", insertError.message);
+      return;
+    }
+    containerId = newContainer.id;
+  }
+
+  // ✅ Insert into pdf_files including extracted_chunks
+  const { data: dbData, error: dbError } = await supabase
+    .from("pdf_files")
+    .insert([
+      {
+        container_id: containerId,
+        name: formdata.pdfFile.name,
+        description: formdata.description,
+        title: formdata.title,
+        pdf_type: formdata.pdfFile.type,
+        url: fileURL,
+        size: formdata.pdfFile.size,
+        extracted_chunks: extractedChunks, // 💥 here!
+      },
+    ]);
+
+  if (dbError) {
+    console.error("Error inserting pdf data:", dbError.message);
+    return null;
+  }
+
+  console.log("PDF data inserted successfully:", dbData);
+  return dbData;
+};
+
+
+
 
 
 

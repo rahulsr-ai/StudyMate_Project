@@ -57,12 +57,10 @@ const App = () => {
       } = await supabase.auth.getSession();
 
       if (session?.user) {
-        console.log("user is logged in", session?.user);
         setUser(session); // store user in state
         return;
       } else {
         setUser(null);
-        console.log("user is not logged in");
         return;
       }
     };

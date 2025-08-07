@@ -4,7 +4,7 @@ import express from "express";
 const AiRouter = express.Router();
 // api/getSummary?videoid=$
 AiRouter.get("/getSummary", getVideosSummary);
-AiRouter.post("/groq/chat", geminiAIresponse);
+AiRouter.post("/gemini/chat", geminiAIresponse);
 
 
 

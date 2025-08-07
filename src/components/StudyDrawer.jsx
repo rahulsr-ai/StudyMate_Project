@@ -100,7 +100,7 @@ const StudyDrawer = ({
   
     if (mediaType === "pdf" ) {
 
-      const {data} = await axios.post('/api/groq/chat', {prompt: prompt , transcript: "You are a helpful assistant that answers based on the user prompt."});
+      const {data} = await axios.post('/api/gemini/chat', {prompt: prompt , transcript: "You are a helpful assistant that answers based on the user prompt."});
       console.log('response from groq from pdf ', data?.reply);
       return data?.reply
 
@@ -109,7 +109,7 @@ const StudyDrawer = ({
 
       const transcript = await getTranscript(youtubeId);
       setSummary(transcript.plainText);
-      const {data} = await axios.post('/api/groq/chat', {prompt: prompt, transcript: transcript.plainText});
+      const {data} = await axios.post('/api/gemini/chat', {prompt: prompt, transcript: transcript.plainText});
       console.log('response from groq for video ', data?.reply);
       return data?.reply
     }
