@@ -15,6 +15,8 @@ const StudyPage = () => {
 
   console.log("StudyPage params:", id, containerId, type);
 
+
+  
   const notify = () => toast.success("Copied to clipboard");
 
   const [prompt, setprompt] = useState(" ");
@@ -36,7 +38,7 @@ const StudyPage = () => {
         `${import.meta.env.VITE_BACKEND_URL}/api/container/${id}/${type}`
       );
       if (data && data.length > 0) {
-        setMessage(data[0]?.notes);
+        setMessage(data[0]?.notes || data[0]?.description || "");
         setCurrentStudy(data[0]);
         // await getContext();
         console.log("Fetched study data:", data[0]);
@@ -207,7 +209,7 @@ const StudyPage = () => {
             <>
               {videoload ? (
                   <iframe
-                  src={`https://docs.google.com/gview?url=${encodeURIComponent(currentStudy?.url)}&embedded=true`}
+                  src={currentStudy?.url}
                   width="100%"
                   height="370"
                   className="rounded-lg border"
