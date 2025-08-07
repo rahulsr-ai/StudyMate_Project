@@ -149,8 +149,12 @@ export const geminiAIresponse = async (req, res) => {
 
       if (transcript) {
         await chat.sendMessage({
-          message: `Here is the transcript of the video which user is watching :\n\n${transcript}`,
+          message: `Here is the transcript of the video which user is watching currently forget about what we was viewing earlier okay :\n\n${transcript}`,
         });
+      } else { 
+       await chat.sendMessage({ 
+        message: "user is watching a video from utube but transcript is not available "
+       })
       }
     } else {
       const { data: pdfData, error: pdfError } = await supabase
@@ -164,6 +168,10 @@ export const geminiAIresponse = async (req, res) => {
           message: `Here are the extracted chunks from the PDF user is viewing :\n\n${extractedChunks.join(
             "\n\n"
           )}`,
+        });
+      } else { 
+        await chat.sendMessage({
+          message: "user is viewing a pdf but no extracted context are available",
         });
       }
     }
