@@ -243,7 +243,7 @@ const StudyPage = () => {
                 }
                 className="px-4 py-2 w-1/1 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition"
               >
-                Save Hello
+                Save 
               </button>
               {/* <button className="px-4 py-2 w-1/4 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition">
                 Export Notes
