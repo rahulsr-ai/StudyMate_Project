@@ -156,7 +156,7 @@ export const geminiAIresponse = async (req, res) => {
         message: "user is watching a video from utube but transcript is not available "
        })
       }
-    } else {
+    } if (type === "pdf") {
       const { data: pdfData, error: pdfError } = await supabase
         .from("pdf_files")
         .select("extracted_chunks")
