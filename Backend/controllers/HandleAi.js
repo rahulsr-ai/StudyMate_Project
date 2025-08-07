@@ -57,18 +57,17 @@ const chat = ai.chats.create({
 });
 
 export const getVideosSummary = async (req, res) => {
-  console.log("hello summary ");
 
-  const videoId = req.query.videoid; // Extract videoId from query parameters
+  const videoId = req.query.videoid; 
 
   if (!videoId) {
-    return res.status(400).json({ error: "Video ID is required" }); // Return error if videoId is missing
+    return res.status(400).json({ error: "Video ID is required" }); 
   }
 
   try {
-    const transcript = await YoutubeTranscript.fetchTranscript(videoId); // Use the provided videoId
+    const transcript = await YoutubeTranscript.fetchTranscript(videoId); 
 
-    const flatTranscript = transcript.flat(); // Flatten the nested array
+    const flatTranscript = transcript.flat(); 
     const plainText = flatTranscript
       .map((item) => item.text)
       .filter(
@@ -139,7 +138,7 @@ export const geminiAIresponse = async (req, res) => {
 
   try {
     // Optional: Add transcript only once at the beginning
-    if (videoId && chat.history.length <= 1) {
+    if (videoId) {
       const { data: transcriptData, error: transcriptError } = await supabase
         .from("transcripts")
         .select("text")
@@ -153,9 +152,7 @@ export const geminiAIresponse = async (req, res) => {
           message: `Here is the transcript of the video which user is watching :\n\n${transcript}`,
         });
       }
-    }
-
-    if (type === "pdf") {
+    } else {
       const { data: pdfData, error: pdfError } = await supabase
         .from("pdf_files")
         .select("extracted_chunks")
@@ -170,8 +167,6 @@ export const geminiAIresponse = async (req, res) => {
         });
       }
     }
-
- 
 
     const result = await chat.sendMessage({ message: prompt });
     let reply = result.text;
