@@ -207,7 +207,7 @@ const StudyPage = () => {
             <>
               {videoload ? (
                   <iframe
-                  src={currentStudy?.url}
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(currentStudy?.url)}&embedded=true`}
                   width="100%"
                   height="370"
                   className="rounded-lg border"
