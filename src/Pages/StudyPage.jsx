@@ -206,16 +206,15 @@ const StudyPage = () => {
           ) : (
             <>
               {videoload ? (
-                <embed src={currentStudy?.url} width="100%" height="370" className="rounded-lg border" title="Study Material"  />
+                  <iframe
+                  src={currentStudy?.url}
+                  width="100%"
+                  height="370"
+                  className="rounded-lg border"
+                  title="Study Material"
+                  allowFullScreen
+                ></iframe>
               ) : (
-                // <iframe
-                //   src={currentStudy?.url}
-                //   width="100%"
-                //   height="370"
-                //   className="rounded-lg border"
-                //   title="Study Material"
-                //   allowFullScreen
-                // ></iframe>
                 <div className="dark:bg-gray-800 md:rounded-lg h-[370px] p-6 shadow-lg flex items-center justify-center">
                   <div className="border-t-4 border-b-4 border-[var(--primary-color)] h-12 w-12 rounded-full animate-spin"></div>
                 </div>
@@ -244,7 +243,7 @@ const StudyPage = () => {
                 }
                 className="px-4 py-2 w-1/1 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition"
               >
-                Save
+                Save Hello
               </button>
               {/* <button className="px-4 py-2 w-1/4 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition">
                 Export Notes
