@@ -47,13 +47,11 @@ export const getUserContainersData = async (req, res) => {
 
     console.log("Fetched Data:", data);
     return res.status(200).json(data);
-
   } catch (error) {
     console.log("error in getUserContainersData ", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 // Handling Youtube video uploads and saving the url to the table
 export const CreateNewContainerAndAddData = async (req, res) => {
@@ -128,23 +126,29 @@ export const CreateNewContainerAndAddData = async (req, res) => {
     console.log("Video data inserted successfully:", videos);
 
     // Step 4: Fetch and save transcript for the video (with safe throttle and error handling)
-    try {
-      // Add a delay to avoid rate limits (1 second)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Optional: Check if transcript already exists
-      const { data: existingTranscript } = await supabase
-        .from("transcripts")
-        .select("id")
-        .eq("video_id", formdata.videoID)
-        .single();
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      const { data: existingTranscript, error: existingTranscriptError } =
+        await supabase
+          .from("transcripts")
+          .select("id")
+          .eq("video_id", formdata.videoID)
+          .maybeSingle();
 
       if (!existingTranscript) {
         const transcript = await YoutubeTranscript.fetchTranscript(
-          formdata.videoID
+          formdata.videoID,
+          { lang: "en" }
         );
-        const flatTranscript = transcript.flat();
-        const plainText = flatTranscript
+
+        if (!transcript || transcript.length === 0) {
+          console.warn(`No transcript found for video ${formdata.videoID}`);
+          return;
+        }
+
+        const plainText = transcript
           .map((item) => item.text)
           .filter(
             (text) => !!text && text.trim() !== "" && !text.includes("[संगीत]")
@@ -160,21 +164,14 @@ export const CreateNewContainerAndAddData = async (req, res) => {
             "Error saving transcript:",
             insertTranscriptError.message
           );
-          return res.status(500).json({
-            error: "Failed to fetch transcript",
-            message: insertTranscriptError.message,
-          });
         } else {
           console.log("Transcript saved successfully!");
         }
       } else {
         console.log("Transcript already exists, skipping fetch.");
       }
-    } catch (transcriptError) {
-      console.error("Error fetching transcript:", transcriptError.message);
-      return res
-        .status(500)
-        .json({ error: "Failed to Add Data in the container " });
+    } catch (err) {
+      console.error("Error fetching transcript:", err.message);
     }
 
     return res.status(200).json({ success: true });
