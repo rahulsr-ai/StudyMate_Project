@@ -53,9 +53,11 @@ export const getUserContainersData = async (req, res) => {
   }
 };
 
+
 // Handling Youtube video uploads and saving the url to the table
 export const CreateNewContainerAndAddData = async (req, res) => {
   const { userId, formdata } = req.body;
+  console.log("formdata from backend ", formdata);
   if (!userId || !formdata) {
     return res.status(400).json({ error: "User ID or formdata is missing" });
   }
@@ -277,6 +279,7 @@ export const CreateNewContainerAndAddPDFData = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 // Fetching user containers data
 export const getUserLatestData = async (req, res) => {
