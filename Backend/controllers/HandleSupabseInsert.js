@@ -184,12 +184,8 @@ export const CreateNewContainerAndAddData = async (req, res) => {
             "Error saving transcript:",
             insertTranscriptError.message
           );
-        } else {
-          console.log("Transcript saved successfully!");
-        }
-      } else {
-        console.log("Transcript already exists, skipping fetch.");
-      }
+        } 
+      } 
     } catch (err) {
       console.error("Error fetching transcript:", err.message);
     }

@@ -172,7 +172,7 @@ const StudyPage = () => {
         className="w-full  bg-zinc-800 text-white shadow-lg flex flex-col md:flex-row"
       >
         {/* Left Section */}
-        <div className="w-full md:w-2/3 px-4 py-3 border-r md:border-r-0 border-zinc-700 ">
+        <div className="w-full  md:w-2/3 px-4 py-3 border-r md:border-r-0 border-zinc-700 ">
           <div
             className=" text-white flex items-center gap-2 cursor-pointer
             "
@@ -200,7 +200,7 @@ const StudyPage = () => {
                   videoId={currentStudy?.v_code}
                   opts={{
                     width: "100%",
-                    height: "350px",
+                    height: "380px",
                     playerVars: { autoplay: 0 },
                   }}
                 />
@@ -238,7 +238,7 @@ const StudyPage = () => {
           )}
 
           {/* Notes Section */}
-          <div className="flex  flex-col space-y-4 mt-4">
+          <div className="flex flex-col space-y-4 mt-4 ">
             <textarea
               className="w-full text-sm p-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:border-blue-500"
               rows="6"
@@ -260,9 +260,7 @@ const StudyPage = () => {
               >
                 Save
               </button>
-              {/* <button className="px-4 py-2 w-1/4 bg-[var(--primary-color)] text-white rounded-md hover:bg-[var(--primary-color)] transition">
-                Export Notes
-              </button> */}
+             
             </div>
           </div>
         </div>
@@ -344,6 +342,8 @@ const StudyPage = () => {
             </button>
           </div>
         </div>
+
+
       </motion.div>
     </motion.div>
   );
