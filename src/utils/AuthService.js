@@ -6,8 +6,8 @@ export const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      // redirectTo: "https://studymatenow.netlify.app/dashboard",
-      redirectTo: "http://localhost:5173//dashboard",
+      redirectTo: "https://studymatenow.netlify.app/dashboard",
+      // redirectTo: "http://localhost:5173//dashboard",
       scopes: "openid email",
       includeGrantedScopes: true,
       queryParams: {
