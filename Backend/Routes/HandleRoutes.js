@@ -2,6 +2,7 @@ import supabase from "../db/supabase.js";
 import { CreateNewContainerAndAddData, CreateNewContainerAndAddPDFData, getUserContainersData, getUserLatestData }
 from "../controllers/HandleSupabseInsert.js"
 import express from "express";
+import { redis } from "../redis.js";
 
 
 
@@ -16,11 +17,14 @@ router.post('/Create/NewContainer/And/AddPDFData', CreateNewContainerAndAddPDFDa
 
 
 router.get('/container/:id/:type' , async (req, res) => {
-    const { id, type } = req.params;
+    const { id, type , userId} = req.params;
 
     if(!id || !type) {
       return res.status(400).json({ error: "Container ID or video ID or type is missing" });
     }
+
+      const isDelete = await redis.del(`containers:${userId}`);
+      console.log("is Delete ", isDelete)
 
     if(type === "video") {
       const { data, error } = await supabase
@@ -52,7 +56,7 @@ router.get('/container/:id/:type' , async (req, res) => {
 
 
 router.get('/getStudyData/:id', async (req, res) => {
-    const { id } = req.params;
+    const { id, userId } = req.params;
     const { data, error } = await supabase
       .from("study_box")
       .select(
@@ -64,7 +68,11 @@ router.get('/getStudyData/:id', async (req, res) => {
     if (error) {
       return res.status(500).json({ error: error.message });
     }
-  
+
+     const isDelete = await redis.del(`containers:${userId}`);
+      console.log("is Delete ", isDelete)
+
+
     res.json(data);
   })
 

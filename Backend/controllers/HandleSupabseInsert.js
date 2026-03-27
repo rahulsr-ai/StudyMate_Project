@@ -1,5 +1,6 @@
 import { YoutubeTranscript } from "youtube-transcript";
 import supabase from "../db/supabase.js";
+import { redis } from "../redis.js";
 
 // Fetching user containers data
 export const getUserContainersData = async (req, res) => {
@@ -9,6 +10,17 @@ export const getUserContainersData = async (req, res) => {
       console.log("User ID is required");
       return res.status(400).json({ error: "User ID is required" });
     }
+
+     const key = `containers:${userId}`;
+
+    // 🔥 1. Check Redis
+    const cached = await redis.get(key);
+
+    if (cached) {
+      console.log("⚡ Redis HIT");
+      return res.status(200).json(cached);
+    }
+
 
     const { data, error } = await supabase
       .from("study_container")
@@ -38,12 +50,16 @@ export const getUserContainersData = async (req, res) => {
       )
       .eq("user_id", userId);
 
-    console.log("data ye rha ", data);
+    
+      
 
     if (error) {
       console.error("Error fetching data:", error);
       return res.status(500).json({ error: error.message });
     }
+
+    // 💾 3. Store in Redis (IMPORTANT)
+    await redis.set(key, data, { ex: 3600 });
 
     console.log("Fetched Data:", data);
     return res.status(200).json(data);
@@ -79,6 +95,8 @@ export const CreateNewContainerAndAddData = async (req, res) => {
         .status(500)
         .json({ error: "Database error while checking container" });
     }
+
+    
 
     if (existingContainer) {
       console.log("Container already exists:", existingContainer);
@@ -176,6 +194,10 @@ export const CreateNewContainerAndAddData = async (req, res) => {
       console.error("Error fetching transcript:", err.message);
     }
 
+    
+    // TO Delete user cached data so next time it get updated one 
+  const isDelete = await redis.del(`containers:${userId}`);
+  console.log("is Delete ", isDelete)
     return res.status(200).json({ success: true });
   } catch (error) {
     console.log("error in CreateNewContainerAndAddData", error);
@@ -271,6 +293,8 @@ export const CreateNewContainerAndAddPDFData = async (req, res) => {
     }
 
     console.log("pdf data inserted successfully:", dbData);
+  const isDelete = await redis.del(`containers:${userId}`);
+  console.log("is Delete ", isDelete)
     return res
       .status(201)
       .json({ message: "Data added successfully", containerId, dbData });
@@ -287,6 +311,7 @@ export const getUserLatestData = async (req, res) => {
   if (!containerId) {
     return res.status(400).json({ error: "Container ID is required" });
   }
+
 
   // Fetching user containers data
   try {
@@ -321,10 +346,12 @@ export const getUserLatestData = async (req, res) => {
     if (error) {
       console.error("Error fetching data:", error);
       return res.status(500).json({ error: error.message });
-    } else {
+    } 
+
+
       console.log("Fetched Latest Data:", data);
       return res.status(200).json(data);
-    }
+    
   } catch (error) {
     console.log("error in getUserLatestData ", error);
     return res.status(500).json({ error: "Internal Server Error" });
