@@ -7,7 +7,6 @@ export const signInWithGoogle = async () => {
     provider: "google",
     options: {
       redirectTo: "https://studymatenow.netlify.app/dashboard",
-      // redirectTo: "http://localhost:5173//dashboard",
       scopes: "openid email",
       includeGrantedScopes: true,
       queryParams: {
