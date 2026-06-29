@@ -64,6 +64,7 @@ export const CreateNewContainerAndAddPDFData = async (userId, formdata) => {
 export const getUserLatestData = async (containerId) => {
  
  try {
+  console.log("FETCHING LATEST DATA .>>>.")
     const data = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user/containers/latest/data/${containerId}`)
     return data
  } catch (error) {
@@ -181,6 +182,38 @@ export const savePdfData = async (userId, formdata) => {
 };
 
 
+export const deleteContainer = async (id, userId) => { 
+
+
+ try { 
+     const data = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/user/containers/delete?id=${id}&userId=${userId.current}`)    
+     return data
+  } catch (error) {
+    console.log('frontend error while fetching user containers ', error);
+     return null
+  }
+  
+}
+
+
+export const deleteSingleItem = async (id, container_id, userId, itemId) => { 
+
+  const title = item.v_title ? true : false
+
+ try { 
+     const data = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/user/delete/item`,  { 
+      title: item.v_title,
+      id, 
+      container_id,
+      userId,
+      itemId
+     })    
+     return data
+  } catch (error) {
+    console.log('frontend error while fetching user containers ', error);
+     return null
+  }
+}
 
 
 

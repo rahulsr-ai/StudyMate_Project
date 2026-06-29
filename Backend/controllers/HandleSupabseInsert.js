@@ -1,6 +1,5 @@
 import { YoutubeTranscript } from "youtube-transcript";
 import supabase from "../db/supabase.js";
-import { redis } from "../redis.js";
 
 // Fetching user containers data
 export const getUserContainersData = async (req, res) => {
@@ -9,16 +8,6 @@ export const getUserContainersData = async (req, res) => {
     if (!userId) {
       console.log("User ID is required");
       return res.status(400).json({ error: "User ID is required" });
-    }
-
-     const key = `containers:${userId}`;
-
-    // 🔥 1. Check Redis
-    const cached = await redis.get(key);
-
-    if (cached) {
-      console.log("⚡ Redis HIT");
-      return res.status(200).json(cached);
     }
 
 
@@ -58,10 +47,7 @@ export const getUserContainersData = async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
-    // 💾 3. Store in Redis (IMPORTANT)
-    await redis.set(key, data, { ex: 3600 });
-
-    console.log("Fetched Data:", data);
+    
     return res.status(200).json(data);
   } catch (error) {
     console.log("error in getUserContainersData ", error);
@@ -190,10 +176,6 @@ export const CreateNewContainerAndAddData = async (req, res) => {
       console.error("Error fetching transcript:", err.message);
     }
 
-    
-    // TO Delete user cached data so next time it get updated one 
-  const isDelete = await redis.del(`containers:${userId}`);
-  console.log("is Delete ", isDelete)
     return res.status(200).json({ success: true });
   } catch (error) {
     console.log("error in CreateNewContainerAndAddData", error);
@@ -208,7 +190,6 @@ export const CreateNewContainerAndAddPDFData = async (req, res) => {
   // const { userId, formdata } =  req.body;
   const { finalFormData } = req.body;
 
-  console.log("formdata from backend ", finalFormData);
 
   try {
     const filePath = `pdfs/${Date.now()}-${formdata?.pdfFile.name}`; // Unique path
@@ -288,9 +269,6 @@ export const CreateNewContainerAndAddPDFData = async (req, res) => {
       return res.status(500).json({ error: "Failed to insert pdf data" });
     }
 
-    console.log("pdf data inserted successfully:", dbData);
-  const isDelete = await redis.del(`containers:${userId}`);
-  console.log("is Delete ", isDelete)
     return res
       .status(201)
       .json({ message: "Data added successfully", containerId, dbData });

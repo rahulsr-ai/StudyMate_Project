@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import supabase from "@/utils/Supabase";
-import { getUserLatestData } from "@/utils/ApiCalls";
+import { deleteSingleItem, getUserLatestData } from "@/utils/ApiCalls";
 import { Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -19,7 +19,9 @@ function Sets() {
   const [openItemId, setOpenItemId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const userIdRef = useRef(null)
+
+const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
 
   const navigate = useNavigate();
@@ -31,12 +33,16 @@ function Sets() {
       console.error("No container_id provided in location.state");
       return;
     }
-
-    const { data: user, error } = await supabase.auth.getUser();
+ 
+   const { data: user, error } = await supabase.auth.getUser();
     if (error) {
       console.error("Error fetching user:", error.message);
       return;
     }
+
+
+
+    userIdRef.current = user.user.id
 
     const res = await getUserLatestData(container_id);
     if (res.data && res.data[0]) {
@@ -98,19 +104,23 @@ function Sets() {
     const item = mergedArray.find((i) => i.id === id);
     if (!item) return;
 
-    if (item.v_title) {
-      await supabase
-        .from("study_box")
-        .delete()
-        .eq("id", id)
-        .eq("container_id", container_id);
-    } else {
-      await supabase
-        .from("pdf_files")
-        .delete()
-        .eq("id", id)
-        .eq("container_id", container_id);
-    }
+    const res = await deleteSingleItem(id, item.v_title, container_id, userIdRef.current)
+
+    // if (item.v_title) {
+    //   await supabase
+    //     .from("study_box")
+    //     .delete()
+    //     .eq("id", id)
+    //     .eq("container_id", container_id);
+    // } else {
+    //   await supabase
+    //     .from("pdf_files")
+    //     .delete()
+    //     .eq("id", id)
+    //     .eq("container_id", container_id);
+    // }
+
+
 
     fetchData();
     setShowDeleteDialog(false);

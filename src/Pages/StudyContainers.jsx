@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -10,7 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import supabase from "@/utils/Supabase";
-import { getUserContainersData } from "@/utils/ApiCalls";
+import { deleteContainer, getUserContainersData } from "@/utils/ApiCalls";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -57,6 +57,7 @@ const VideoGrid = ({
   showDeleteDialog,
   setShowDeleteDialog,
   getUser,
+  userIdRef
 }) => {
   const navigate = useNavigate();
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -93,7 +94,10 @@ const VideoGrid = ({
 
   const deleteItem = async (id) => {
     if (!id) return alert("Please select an item to delete");
-    await supabase.from("study_container").delete().eq("id", id);
+    
+    // deleteContainer
+   const res =  await deleteContainer(id, userIdRef)
+   
     setShowDeleteDialog(false);
     setSelectedItemId(null);
     getUser();
@@ -251,14 +255,17 @@ const VideoGrid = ({
 const StudyContainers = () => {
   const [containers, setContainers] = useState([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
+  const userIdRef = useRef(null)
 
   async function getUser() {
     const { data, error } = await supabase.auth.getUser();
     if (error) return console.error("Error fetching user:", error.message);
     const res = await getUserContainersData(data.user.id);
+    userIdRef.current = data.user.id
     setContainers(res.data);
     setLoading(false);
+    
   }
 
   useEffect(() => {
@@ -288,6 +295,7 @@ const StudyContainers = () => {
               <VideoGrid
                 key={index}
                 title={container.name}
+                userIdRef={userIdRef}
                 container={container}
                 showDeleteDialog={showDeleteDialog}
                 setShowDeleteDialog={setShowDeleteDialog}

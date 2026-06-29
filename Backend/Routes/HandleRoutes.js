@@ -2,8 +2,6 @@ import supabase from "../db/supabase.js";
 import { CreateNewContainerAndAddData, CreateNewContainerAndAddPDFData, getUserContainersData, getUserLatestData }
 from "../controllers/HandleSupabseInsert.js"
 import express from "express";
-import { redis } from "../redis.js";
-
 
 
 const router = express.Router();
@@ -23,8 +21,7 @@ router.get('/container/:id/:type' , async (req, res) => {
       return res.status(400).json({ error: "Container ID or video ID or type is missing" });
     }
 
-      const isDelete = await redis.del(`containers:${userId}`);
-      console.log("is Delete ", isDelete)
+  
 
     if(type === "video") {
       const { data, error } = await supabase
@@ -69,12 +66,93 @@ router.get('/getStudyData/:id', async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
-     const isDelete = await redis.del(`containers:${userId}`);
-      console.log("is Delete ", isDelete)
-
 
     res.json(data);
   })
+
+
+router.delete('/user/containers/delete', async (req, res) => { 
+     try {
+    const { id, userId } = req.query;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Container ID is required",
+      });
+    }
+
+    const { error } = await supabase
+      .from("study_container")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Container deleted successfully",
+    });
+  } catch (err) {
+    console.error("Delete container error:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+  })
+
+
+
+router.delete('/user/delete/item', async (req, res) => { 
+  try {
+   
+
+    const { title, itemId, container_id, userId } = await req.body();
+
+
+
+    // Basic Validation
+    if (!itemId || !container_id) {
+      return res.status(400).json({ error: "Missing required fields: id or container_id" });
+    }
+
+
+    if (title) {
+      const { error } = await supabase
+        .from("study_box")
+        .delete()
+        .eq("id", itemId)
+        .eq("container_id", container_id);
+        
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from("pdf_files")
+        .delete()
+        .eq("id", itemId)
+        .eq("container_id", container_id);
+        
+      if (error) throw error;
+    }
+
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: "Item deleted successfully and cache invalidated." 
+    });
+
+  } catch (error) {
+    console.error("Global delete route error:", error.message);
+    return res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
 
 
 export default router;
